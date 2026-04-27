@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  TINTO
+  BLANCO
+  ROSADO
+  NARANJO
+  ESPUMANTE
+}
+
+enum Role {
+  ADMIN1 // Socio: ve reportes, valorización, CRUD completo
+  ADMIN2 // Operativo: toggle disponible, editar stock manual, registrar ventas
+}
+
+enum DrinkCategory {
+  VERMUTH
+  CLASICO
+  AUTOR
+  WHISKY
+  CERVEZA
+  SIN_ALCOHOL
+  CAFETERIA
+}
+
+enum DishCategory {
+  FRIO
+  CALIENTE
+  POSTRE
+}
+
+model Drink {
+  id          Int           @id @default(autoincrement())
+  name        String
+  category    DrinkCategory
+  description String?
+  price       Int?
+  imageUrl    String?
+  available   Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([category])
+  @@index([available])
+}
+
+model Dish {
+  id          Int          @id @default(autoincrement())
+  name        String
+  category    DishCategory
+  subSection  String?
+  description String?
+  price       Int?
+  available   Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([category])
+  @@index([available])
+}
+
+model Wine {
+  id          Int      @id @default(autoincrement())
+  name        String
+  winery      String
+  category    Category
+  varietal    String?
+  zone        String
+  subZone     String?
+  vintage     Int?
+  alcohol     Float?
+  aging       String?
+  servingTemp String?
+  pairing     String?
+  tastingNote String?
+  price       Int? // Precio de venta (lista)
+  cost        Int? // Costo de adquisición (para valorización/margen)
+  stock       Int      @default(1)
+  fichaUrl    String?
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sales       Sale[]
+
+  @@index([category])
+  @@index([zone])
+  @@index([varietal])
+  @@index([available])
+}
+
+model User {
+  id           Int    @id @default(autoincrement())
+  email        String @unique
+  passwordHash String
+  name         String
+  role         Role   @default(ADMIN2)
+
+  sales        Sale[]
+}
+
+model Sale {
+  id        Int      @id @default(autoincrement())
+  wineId    Int
+  wine      Wine     @relation(fields: [wineId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  quantity  Int      @default(1)
+  unitPrice Int?
+  total     Int?
+  createdAt DateTime @default(now())
+
+  @@index([wineId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+/// Snapshot de valorización de mercadería en un momento dado.
+/// Lo puede crear Admin1 con un botón, o correr desde un cron diario.
+model ValuationSnapshot {
+  id               Int      @id @default(autoincrement())
+  takenAt          DateTime @default(now())
+  totalUnits       Int // sumatoria de stock
+  totalCostValue   Int // Σ(stock × cost) — 0 si no hay costos cargados
+  totalPriceValue  Int // Σ(stock × price)
+  byCategoryJson   String // JSON: { TINTO: { units, costValue, priceValue }, ... }
+  byZoneJson       String // JSON: { "Mendoza": { units, costValue, priceValue }, ... }
+  byWineryJson     String // JSON: idem por bodega
+  wineCount        Int // cantidad de etiquetas distintas con stock > 0
+
+  @@index([takenAt])
+}

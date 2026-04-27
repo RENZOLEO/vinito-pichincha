@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local DB
+prisma/dev.db
+prisma/dev.db-journal
+
+# Excel sources (data privada)
+data/*.xlsx
+public/uploads/
+
+# editor
+.vscode/
+.idea/
