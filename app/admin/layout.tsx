@@ -11,6 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <a href="/admin" className="font-bold text-sm tracking-wide">VINITO Admin</a>
         <div className="flex gap-4 text-xs">
           <a href="/admin/wines" className="hover:text-vinito-red transition-colors">Vinos</a>
+          <a href="/admin/dishes" className="hover:text-vinito-red transition-colors">Platos</a>
           {isAdmin1 && (
             <>
               <a href="/admin/import" className="hover:text-vinito-red transition-colors">Importar</a>
