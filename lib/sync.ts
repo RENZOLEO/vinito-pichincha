@@ -56,7 +56,8 @@ export async function syncFromBuffer(buffer: ArrayBuffer, mode: SyncMode = "sync
         },
       });
       if (existing) {
-        await prisma.wine.update({ where: { id: existing.id }, data });
+        const { available: _ignored, ...updateData } = data;
+        await prisma.wine.update({ where: { id: existing.id }, data: updateData });
         winesResult.updated++;
       } else {
         await prisma.wine.create({ data });

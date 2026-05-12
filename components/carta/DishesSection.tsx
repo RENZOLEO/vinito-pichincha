@@ -65,6 +65,13 @@ export function DishesSection() {
         ))}
       </div>
 
+      <div className="px-4 pt-2 pb-1">
+        <p className="text-[11px] text-vinito-black/70 leading-snug">
+          <span className="font-bold text-vinito-black">Servicio de mesa $4.000</span>
+          <span className="text-vinito-black/60"> — incluye agua con/sin gas libre.</span>
+        </p>
+      </div>
+
       {loading ? (
         <div className="text-center py-10 text-vinito-black/60 text-sm">Cargando…</div>
       ) : grouped.length === 0 ? (
