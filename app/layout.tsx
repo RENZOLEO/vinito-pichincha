@@ -7,8 +7,8 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const abril = Abril_Fatface({ subsets: ["latin"], variable: "--font-abril", weight: "400" });
 
 export const metadata: Metadata = {
-  title: "VINITO Pichincha — Carta de Vinos",
-  description: "Más de 500 etiquetas de vino. Jujuy 2248, Pichincha, Rosario.",
+  title: "VINITO Pichincha — CARTA",
+  description: "Bar de Vinos. Jujuy 2248, Pichincha, Rosario.",
 };
 
 export const viewport: Viewport = {
