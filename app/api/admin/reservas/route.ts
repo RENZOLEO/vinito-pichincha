@@ -10,8 +10,9 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
-  const now = new Date()
-  const localToday = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`
+  // Argentina is always UTC-3 (no DST since 2008)
+  const argNow = new Date(Date.now() - 3 * 60 * 60 * 1000)
+  const localToday = `${argNow.getUTCFullYear()}-${String(argNow.getUTCMonth() + 1).padStart(2, '0')}-${String(argNow.getUTCDate()).padStart(2, '0')}`
   const dateStr = searchParams.get('date') ?? localToday
 
   const dayStart = new Date(dateStr + 'T00:00:00.000Z')
