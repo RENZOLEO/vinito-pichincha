@@ -382,8 +382,6 @@ export default function ReservasClient() {
                 ['Fecha', selectedDate ? formatDateLong(selectedDate) : '—'],
                 ['Horario', selectedSlot ? `${selectedSlot.time} hs` : '—'],
                 ['Personas', guests],
-                ['Mesas', availableSlot?.tables.join(', ') ?? '—'],
-                ['Planta', availableSlot?.floor ?? '—'],
               ].map(([k, v]) => (
                 <div key={k as string} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #EDE5DC', fontSize: 13 }}>
                   <span style={{ color: '#888' }}>{k}</span>
