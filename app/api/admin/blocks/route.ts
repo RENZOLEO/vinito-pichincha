@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
   const block = await prisma.tableBlock.create({
     data: {
-      date: new Date(date),
+      date: new Date(date + 'T00:00:00.000Z'),
       time: time ?? null,
       tables: JSON.stringify(tables),
       reason: reason ?? null,

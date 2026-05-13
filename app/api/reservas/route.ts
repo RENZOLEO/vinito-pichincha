@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 })
     }
 
-    const reservationDate = new Date(date)
+    const reservationDate = new Date(date + 'T00:00:00.000Z')
     const dayStart = new Date(date + 'T00:00:00.000Z')
     const dayEnd = new Date(date + 'T23:59:59.999Z')
 
@@ -93,14 +93,14 @@ export async function POST(req: NextRequest) {
           data: {
             visits: { increment: 1 },
             lastVisit: reservationDate,
-            birthDate: existing.birthDate ?? (birthDate ? new Date(birthDate) : null),
+            birthDate: existing.birthDate ?? (birthDate ? new Date(birthDate + 'T00:00:00.000Z') : null),
           },
         })
       : await prisma.customer.create({
           data: {
             name: customerName,
             phone: telefono,
-            birthDate: birthDate ? new Date(birthDate) : null,
+            birthDate: birthDate ? new Date(birthDate + 'T00:00:00.000Z') : null,
             visits: 1,
             firstVisit: reservationDate,
             lastVisit: reservationDate,

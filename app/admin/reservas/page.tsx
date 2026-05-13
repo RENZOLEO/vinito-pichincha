@@ -11,7 +11,7 @@ export default async function AdminReservasPage({
 }) {
   const sp = await searchParams
   const now = new Date()
-  const localToday = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const localToday = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`
   const dateStr = sp.date ?? localToday
 
   const dayStart = new Date(dateStr + 'T00:00:00.000Z')
