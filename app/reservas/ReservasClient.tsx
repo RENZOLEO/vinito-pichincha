@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 import { MONTHS, WEEKDAYS, formatDateLong } from '@/lib/reservas/config'
 
 type Step = 1 | 2 | 3 | 4 | 5
@@ -173,10 +174,7 @@ export default function ReservasClient() {
 
       {/* Header */}
       <div style={{ background: DARK, padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <span style={{ color: RED, fontWeight: 900, fontSize: 18, letterSpacing: 2, textTransform: 'uppercase' }}>VINITO </span>
-          <span style={{ color: BLUE, fontStyle: 'italic', fontSize: 13, fontWeight: 300 }}>Pichincha</span>
-        </div>
+        <Image src="/03.png" alt="VINITO Pichincha" width={100} height={44} style={{ height: 44, width: 'auto' }} priority />
         <span style={{ color: 'rgba(236,238,225,0.5)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase' }}>Jujuy 2248 · Rosario</span>
       </div>
 

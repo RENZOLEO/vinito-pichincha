@@ -9,6 +9,7 @@ const abril = Abril_Fatface({ subsets: ["latin"], variable: "--font-abril", weig
 export const metadata: Metadata = {
   title: "VINITO Pichincha — CARTA",
   description: "Bar de Vinos. Jujuy 2248, Pichincha, Rosario.",
+  icons: { icon: '/03.png' },
 };
 
 export const viewport: Viewport = {

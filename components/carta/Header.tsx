@@ -8,7 +8,7 @@ export function Header() {
       </div>
       <div className="flex justify-center py-4">
         <Image
-          src="/logo-vinito-pichincha.png"
+          src="/03.png"
           alt="VINITO Pichincha"
           width={180}
           height={80}

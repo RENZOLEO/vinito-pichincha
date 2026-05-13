@@ -35,7 +35,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-vinito-cream">
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded-lg border border-vinito-black/10">
         <div className="flex justify-center mb-6">
-          <Image src="/logo-vinito-pichincha.png" alt="VINITO" width={120} height={60} className="h-12 w-auto" />
+          <Image src="/03.png" alt="VINITO" width={120} height={60} className="h-12 w-auto" />
         </div>
 
         {error && <p className="text-red-600 text-sm mb-4 text-center">{error}</p>}
