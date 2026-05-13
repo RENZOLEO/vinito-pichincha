@@ -254,23 +254,39 @@ export default function ReservasClient() {
             <div style={{ fontSize: 28, fontWeight: 900, color: DARK, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Elegí el horario</div>
             <div style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>{selectedDate && formatDateLong(selectedDate)}</div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-              {slots.map((slot) => (
-                <div key={slot.time}
-                  onClick={() => slot.available && handleContinueToGuests(slot)}
-                  style={{
-                    padding: '16px', border: `1.5px solid ${selectedSlot?.time === slot.time ? RED : '#D8DAC8'}`,
-                    borderRadius: 4, cursor: slot.available ? 'pointer' : 'not-allowed',
-                    textAlign: 'center', opacity: slot.available ? 1 : 0.35,
-                    background: selectedSlot?.time === slot.time ? RED : '#fff',
-                  }}>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: selectedSlot?.time === slot.time ? CREAM : DARK, letterSpacing: 1 }}>{slot.time}</div>
-                  <div style={{ fontSize: 11, color: selectedSlot?.time === slot.time ? 'rgba(236,238,225,0.7)' : '#888', marginTop: 2 }}>
-                    {slot.available ? (slot.time <= '20:30' ? 'Primer turno' : 'Segundo turno') : 'Sin disponibilidad'}
-                  </div>
+            {slots.length > 0 && slots.every(s => !s.available) ? (
+              <div style={{ background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 4, padding: '28px 20px', textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>🍷</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: DARK, marginBottom: 8 }}>
+                  Sin disponibilidad
                 </div>
-              ))}
-            </div>
+                <div style={{ fontSize: 13, color: '#888', lineHeight: 1.6 }}>
+                  Lo sentimos, no hay mesas disponibles para el horario seleccionado.<br />
+                  Podés elegir otro horario o fecha.
+                </div>
+                <button style={{ ...btnSecondary, marginTop: 20, marginBottom: 0 }} onClick={() => goStep(1)}>
+                  ← Elegir otra fecha
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+                {slots.map((slot) => (
+                  <div key={slot.time}
+                    onClick={() => slot.available && handleContinueToGuests(slot)}
+                    style={{
+                      padding: '16px', border: `1.5px solid ${selectedSlot?.time === slot.time ? RED : '#D8DAC8'}`,
+                      borderRadius: 4, cursor: slot.available ? 'pointer' : 'not-allowed',
+                      textAlign: 'center', opacity: slot.available ? 1 : 0.35,
+                      background: selectedSlot?.time === slot.time ? RED : '#fff',
+                    }}>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: selectedSlot?.time === slot.time ? CREAM : DARK, letterSpacing: 1 }}>{slot.time}</div>
+                    <div style={{ fontSize: 11, color: selectedSlot?.time === slot.time ? 'rgba(236,238,225,0.7)' : '#888', marginTop: 2 }}>
+                      {slot.available ? (slot.time <= '20:30' ? 'Primer turno' : 'Segundo turno') : 'Sin disponibilidad'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </>
         )}
 
