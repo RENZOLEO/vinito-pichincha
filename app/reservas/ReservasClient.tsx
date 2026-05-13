@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { MONTHS, WEEKDAYS, formatDateLong } from '@/lib/reservas/config'
 
 type Step = 1 | 2 | 3 | 4 | 5
@@ -24,9 +24,25 @@ export default function ReservasClient() {
   const [loading, setLoading] = useState(false)
   const [confirmation, setConfirmation] = useState<null | { returning: boolean; tables: number[]; floor: string; clientName: string }>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isClosed, setIsClosed] = useState(false)
+
+  // Run only on the client to avoid SSR/hydration mismatch (server is UTC, browser is Argentina)
+  useEffect(() => {
+    const now = new Date()
+    if (now.getHours() < 20) return
+    const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    const ts = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`
+    setIsClosed(true)
+    setSelectedDate(ts)
+    setCalYear(tom.getFullYear())
+    setCalMonth(tom.getMonth())
+  }, [])
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+  const tomorrowDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+  const tomorrowStr = `${tomorrowDate.getFullYear()}-${String(tomorrowDate.getMonth() + 1).padStart(2, '0')}-${String(tomorrowDate.getDate()).padStart(2, '0')}`
+  const minDate = isClosed ? tomorrowDate : today
 
   const goStep = (n: Step) => { setError(null); setStep(n) }
 
@@ -177,7 +193,13 @@ export default function ReservasClient() {
           <>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: BLUE, textTransform: 'uppercase', marginBottom: 4 }}>Paso 1 de 4</div>
             <div style={{ fontFamily: 'inherit', fontSize: 28, fontWeight: 900, color: DARK, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Elegí una fecha</div>
-            <div style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>Seleccioná el día de tu visita</div>
+            <div style={{ fontSize: 13, color: '#888', marginBottom: isClosed ? 8 : 20 }}>Seleccioná el día de tu visita</div>
+
+            {isClosed && (
+              <div style={{ background: '#EEF3F7', color: BLUE, padding: '10px 14px', borderRadius: 4, marginBottom: 20, fontSize: 13, fontWeight: 600, borderLeft: `3px solid ${BLUE}` }}>
+                Las reservas para hoy están cerradas. Estás reservando para mañana {formatDateLong(tomorrowStr)}.
+              </div>
+            )}
 
             {/* Calendar nav */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -197,7 +219,7 @@ export default function ReservasClient() {
                 const day = i + 1
                 const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                 const dt = new Date(calYear, calMonth, day)
-                const isPast = dt < today
+                const isPast = dt < minDate
                 const isSelected = dateStr === selectedDate
                 const isToday = dt.toDateString() === new Date().toDateString()
                 return (
