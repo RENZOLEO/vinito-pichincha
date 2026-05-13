@@ -330,7 +330,7 @@ export default function ReservasClient() {
 
             {availableSlot
               ? <div style={{ background: '#EAF3DE', color: '#2D6A4F', padding: '10px 13px', borderRadius: 4, fontSize: 13, fontWeight: 600, marginBottom: 18 }}>
-                  ✓ Disponible · Planta {availableSlot.floor} · Mesa{availableSlot.tables.length > 1 ? 's' : ''} {availableSlot.tables.join(', ')}
+                  ✓ Hay lugar para {guests} {guests === 1 ? 'persona' : 'personas'} en este horario
                 </div>
               : <div style={{ background: '#FCEBEB', color: '#A32D2D', padding: '10px 13px', borderRadius: 4, fontSize: 13, fontWeight: 600, marginBottom: 18 }}>
                   Sin disponibilidad para {guests} personas en este horario.
