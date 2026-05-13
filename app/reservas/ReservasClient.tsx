@@ -25,17 +25,23 @@ export default function ReservasClient() {
   const [confirmation, setConfirmation] = useState<null | { returning: boolean; tables: number[]; floor: string; clientName: string }>(null)
   const [error, setError] = useState<string | null>(null)
   const [isClosed, setIsClosed] = useState(false)
+  const [tuesdayMsg, setTuesdayMsg] = useState(false)
 
   // Run only on the client to avoid SSR/hydration mismatch (server is UTC, browser is Argentina)
   useEffect(() => {
     const now = new Date()
     if (now.getHours() < 20) return
-    const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-    const ts = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`
+    // Skip ahead past any Tuesday (e.g. Monday night rolls over to Tuesday)
+    let daysAhead = 1
+    while (new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead).getDay() === 2) {
+      daysAhead++
+    }
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead)
+    const ts = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`
     setIsClosed(true)
     setSelectedDate(ts)
-    setCalYear(tom.getFullYear())
-    setCalMonth(tom.getMonth())
+    setCalYear(target.getFullYear())
+    setCalMonth(target.getMonth())
   }, [])
 
   const today = new Date()
@@ -193,7 +199,13 @@ export default function ReservasClient() {
           <>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: BLUE, textTransform: 'uppercase', marginBottom: 4 }}>Paso 1 de 4</div>
             <div style={{ fontFamily: 'inherit', fontSize: 28, fontWeight: 900, color: DARK, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Elegí una fecha</div>
-            <div style={{ fontSize: 13, color: '#888', marginBottom: isClosed ? 8 : 20 }}>Seleccioná el día de tu visita</div>
+            <div style={{ fontSize: 13, color: '#888', marginBottom: (isClosed || tuesdayMsg) ? 8 : 20 }}>Seleccioná el día de tu visita</div>
+
+            {tuesdayMsg && (
+              <div style={{ background: '#FFF8F0', color: DARK, padding: '10px 14px', borderRadius: 4, marginBottom: 16, fontSize: 13, fontWeight: 600, borderLeft: `3px solid ${RED}` }}>
+                Lamentablemente los días martes el local permanece cerrado. Por favor elegí otro día.
+              </div>
+            )}
 
             {isClosed && (
               <div style={{ background: '#EEF3F7', color: BLUE, padding: '10px 14px', borderRadius: 4, marginBottom: 20, fontSize: 13, fontWeight: 600, borderLeft: `3px solid ${BLUE}` }}>
@@ -220,16 +232,25 @@ export default function ReservasClient() {
                 const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                 const dt = new Date(calYear, calMonth, day)
                 const isPast = dt < minDate
+                const isTuesday = dt.getDay() === 2
+                const isDisabled = isPast || isTuesday
                 const isSelected = dateStr === selectedDate
                 const isToday = dt.toDateString() === new Date().toDateString()
                 return (
-                  <div key={day} onClick={() => !isPast && handleSelectDate(dateStr)}
+                  <div key={day}
+                    onClick={() => {
+                      if (isPast) return
+                      if (isTuesday) { setTuesdayMsg(true); return }
+                      setTuesdayMsg(false)
+                      handleSelectDate(dateStr)
+                    }}
                     style={{
                       aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 13, borderRadius: 3, cursor: isPast ? 'default' : 'pointer',
+                      fontSize: 13, borderRadius: 3,
+                      cursor: isPast ? 'default' : isTuesday ? 'not-allowed' : 'pointer',
                       border: isSelected ? `1.5px solid ${RED}` : isToday ? `1.5px solid ${BLUE}` : '1.5px solid transparent',
                       background: isSelected ? RED : 'transparent',
-                      color: isPast ? '#ccc' : isSelected ? CREAM : isToday ? BLUE : DARK,
+                      color: isDisabled ? '#ccc' : isSelected ? CREAM : isToday ? BLUE : DARK,
                       fontWeight: isToday ? 700 : 400,
                     }}>
                     {day}
