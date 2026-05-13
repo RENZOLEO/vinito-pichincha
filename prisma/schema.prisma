@@ -137,3 +137,37 @@ model ValuationSnapshot {
 
   @@index([takenAt])
 }
+// ── RESERVAS ──────────────────────────────────────────────────────────────────
+
+model Customer {
+  id           Int           @id @default(autoincrement())
+  name         String
+  phone        String        @unique
+  birthDate    DateTime?
+  visits       Int           @default(0)
+  firstVisit   DateTime?
+  lastVisit    DateTime?
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+
+  @@index([phone])
+}
+
+model Reservation {
+  id           Int      @id @default(autoincrement())
+  date         DateTime
+  time         String   // "20:00" | "20:30" | "20:45" | "21:00"
+  guests       Int
+  tables       String   // JSON: "[1,2]"
+  floor        String   // "alta" | "baja"
+  returning    Boolean  @default(false)
+  completed    Boolean  @default(false)
+  feedbackSent Boolean  @default(false)
+  customerId   Int
+  customer     Customer @relation(fields: [customerId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([date])
+  @@index([customerId])
+  @@index([completed])
+}
