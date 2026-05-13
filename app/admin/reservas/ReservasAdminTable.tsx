@@ -92,6 +92,15 @@ export default function ReservasAdminTable({
     setLoading(null)
   }
 
+  const deleteReservation = async (id: number, name: string) => {
+    if (!confirm(`¿Eliminar la reserva de ${name}? Esta acción no se puede deshacer.`)) return
+    setLoading(id)
+    await fetch(`/api/admin/reservas?id=${id}`, { method: 'DELETE' })
+    setReservations(rs => rs.filter(r => r.id !== id))
+    setFeedbackPending(fp => fp.filter(r => r.id !== id))
+    setLoading(null)
+  }
+
   const markFeedbackSent = async (id: number) => {
     setLoading(id)
     await fetch('/api/admin/reservas', {
@@ -220,7 +229,7 @@ export default function ReservasAdminTable({
               : reservations.map(r => {
                 const tables: number[] = JSON.parse(r.tables)
                 return (
-                  <div key={r.id} style={{ ...card, display: 'grid', gridTemplateColumns: '60px 1fr auto auto', alignItems: 'center', gap: 12 }}>
+                  <div key={r.id} style={{ ...card, display: 'grid', gridTemplateColumns: '60px 1fr auto auto auto', alignItems: 'center', gap: 12 }}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: RED, letterSpacing: 1 }}>{r.time}</div>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 700 }}>{r.customer.name}</div>
@@ -240,6 +249,12 @@ export default function ReservasAdminTable({
                       disabled={r.completed || loading === r.id}
                       onClick={() => !r.completed && markCompleted(r.id)}>
                       {r.completed ? '✓ Completada' : loading === r.id ? '...' : 'Marcar visitado'}
+                    </button>
+                    <button
+                      style={{ padding: '5px 8px', fontSize: 13, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#999', cursor: 'pointer' }}
+                      disabled={loading === r.id}
+                      onClick={() => deleteReservation(r.id, r.customer.name)}>
+                      🗑
                     </button>
                   </div>
                 )
