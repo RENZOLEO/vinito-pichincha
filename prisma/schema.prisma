@@ -171,3 +171,14 @@ model Reservation {
   @@index([customerId])
   @@index([completed])
 }
+
+model TableBlock {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  time      String?  // null = all day; "20:00" | "20:30" | "20:45" | "21:00"
+  tables    String   // JSON array: "[1,2]"
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}

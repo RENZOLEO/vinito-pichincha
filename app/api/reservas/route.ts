@@ -14,20 +14,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'date required' }, { status: 400 })
   }
 
-  const date = new Date(dateStr)
-  const dayStart = new Date(date)
-  dayStart.setHours(0, 0, 0, 0)
-  const dayEnd = new Date(date)
-  dayEnd.setHours(23, 59, 59, 999)
+  const dayStart = new Date(dateStr + 'T00:00:00.000Z')
+  const dayEnd = new Date(dateStr + 'T23:59:59.999Z')
 
-  const dayReservations = await prisma.reservation.findMany({
-    where: { date: { gte: dayStart, lte: dayEnd } },
-    select: { time: true, tables: true },
-  })
+  const [dayReservations, dayBlocks] = await Promise.all([
+    prisma.reservation.findMany({
+      where: { date: { gte: dayStart, lte: dayEnd } },
+      select: { time: true, tables: true },
+    }),
+    prisma.tableBlock.findMany({
+      where: { date: { gte: dayStart, lte: dayEnd } },
+      select: { time: true, tables: true },
+    }),
+  ])
 
   const slots = TIME_SLOTS.map((time) => {
     const slotReservations = dayReservations.filter((r) => r.time === time)
-    const usedTables = getUsedTables(slotReservations)
+    const slotBlocks = dayBlocks.filter((b) => b.time === null || b.time === time)
+    const usedTables = getUsedTables([...slotReservations, ...slotBlocks])
     const combo = findBestCombo(guests, usedTables)
     return {
       time,
@@ -52,21 +56,24 @@ export async function POST(req: NextRequest) {
     }
 
     const reservationDate = new Date(date)
-    const dayStart = new Date(reservationDate)
-    dayStart.setHours(0, 0, 0, 0)
-    const dayEnd = new Date(reservationDate)
-    dayEnd.setHours(23, 59, 59, 999)
+    const dayStart = new Date(date + 'T00:00:00.000Z')
+    const dayEnd = new Date(date + 'T23:59:59.999Z')
 
-    // Get existing reservations for that slot
-    const slotReservations = await prisma.reservation.findMany({
-      where: {
-        date: { gte: dayStart, lte: dayEnd },
-        time,
-      },
-      select: { tables: true },
-    })
+    const [slotReservations, slotBlocks] = await Promise.all([
+      prisma.reservation.findMany({
+        where: { date: { gte: dayStart, lte: dayEnd }, time },
+        select: { tables: true },
+      }),
+      prisma.tableBlock.findMany({
+        where: {
+          date: { gte: dayStart, lte: dayEnd },
+          OR: [{ time: null }, { time }],
+        },
+        select: { tables: true },
+      }),
+    ])
 
-    const usedTables = getUsedTables(slotReservations)
+    const usedTables = getUsedTables([...slotReservations, ...slotBlocks])
     const combo = findBestCombo(guests, usedTables)
 
     if (!combo) {

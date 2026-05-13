@@ -10,12 +10,14 @@ export default async function AdminReservasPage({
   searchParams: Promise<{ date?: string }>
 }) {
   const sp = await searchParams
-  const dateStr = sp.date ?? new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const localToday = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const dateStr = sp.date ?? localToday
 
   const dayStart = new Date(dateStr + 'T00:00:00.000Z')
   const dayEnd = new Date(dateStr + 'T23:59:59.999Z')
 
-  const [reservations, customers, pendingFeedback] = await Promise.all([
+  const [reservations, customers, pendingFeedback, blocks] = await Promise.all([
     prisma.reservation.findMany({
       where: { date: { gte: dayStart, lte: dayEnd } },
       include: { customer: true },
@@ -30,6 +32,10 @@ export default async function AdminReservasPage({
       include: { customer: true },
       orderBy: { date: 'desc' },
     }),
+    prisma.tableBlock.findMany({
+      where: { date: { gte: dayStart, lte: dayEnd } },
+      orderBy: [{ time: 'asc' }, { id: 'asc' }],
+    }),
   ])
 
   return (
@@ -37,6 +43,7 @@ export default async function AdminReservasPage({
       initialReservations={JSON.parse(JSON.stringify(reservations))}
       initialCustomers={JSON.parse(JSON.stringify(customers))}
       initialFeedbackPending={JSON.parse(JSON.stringify(pendingFeedback))}
+      initialBlocks={JSON.parse(JSON.stringify(blocks))}
       currentDate={dateStr}
     />
   )
