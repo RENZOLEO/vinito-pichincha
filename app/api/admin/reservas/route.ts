@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { findBestCombo, getUsedTables } from '@/lib/reservas/config'
 
 // GET /api/admin/reservas?date=2024-12-20
 export async function GET(req: NextRequest) {
@@ -28,13 +29,54 @@ export async function GET(req: NextRequest) {
 }
 
 // PATCH /api/admin/reservas
-// Body: { id, completed } or { id, feedbackSent }
+// Body: { id, completed } | { id, feedbackSent } | { id, guests }
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, completed, feedbackSent } = await req.json()
+  const body = await req.json()
+  const { id, completed, feedbackSent, guests } = body
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+  // Edit guest count: reassign tables using global daily capacity
+  if (guests !== undefined) {
+    const existing = await prisma.reservation.findUnique({
+      where: { id },
+      select: { date: true },
+    })
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    const dayStart = new Date(existing.date)
+    dayStart.setUTCHours(0, 0, 0, 0)
+    const dayEnd = new Date(existing.date)
+    dayEnd.setUTCHours(23, 59, 59, 999)
+
+    const [otherReservations, dayBlocks] = await Promise.all([
+      prisma.reservation.findMany({
+        where: { date: { gte: dayStart, lte: dayEnd }, NOT: { id } },
+        select: { tables: true },
+      }),
+      prisma.tableBlock.findMany({
+        where: { date: { gte: dayStart, lte: dayEnd } },
+        select: { tables: true },
+      }),
+    ])
+
+    const usedTables = getUsedTables([...otherReservations, ...dayBlocks])
+    const combo = findBestCombo(guests, usedTables)
+    if (!combo) {
+      return NextResponse.json(
+        { error: 'Sin disponibilidad para esa cantidad de comensales' },
+        { status: 409 },
+      )
+    }
+
+    const updated = await prisma.reservation.update({
+      where: { id },
+      data: { guests, tables: JSON.stringify(combo.tables), floor: combo.floor },
+    })
+    return NextResponse.json({ ok: true, reservation: updated })
+  }
 
   const updated = await prisma.reservation.update({
     where: { id },

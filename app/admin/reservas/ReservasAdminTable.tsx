@@ -49,6 +49,8 @@ export default function ReservasAdminTable({
   const [blocks, setBlocks] = useState(initialBlocks)
   const [searchQ, setSearchQ] = useState('')
   const [loading, setLoading] = useState<number | null>(null)
+  const [editingGuests, setEditingGuests] = useState<{ id: number; guests: number } | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
 
   // ── Block form state ──────────────────────────────────────────────────────
   const [showBlockForm, setShowBlockForm] = useState(false)
@@ -98,6 +100,29 @@ export default function ReservasAdminTable({
     await fetch(`/api/admin/reservas?id=${id}`, { method: 'DELETE' })
     setReservations(rs => rs.filter(r => r.id !== id))
     setFeedbackPending(fp => fp.filter(r => r.id !== id))
+    setLoading(null)
+  }
+
+  const saveEditGuests = async () => {
+    if (!editingGuests) return
+    setLoading(editingGuests.id)
+    setEditError(null)
+    const res = await fetch('/api/admin/reservas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editingGuests.id, guests: editingGuests.guests }),
+    })
+    const data = await res.json()
+    if (res.ok && data.ok) {
+      setReservations(rs => rs.map(r =>
+        r.id === editingGuests.id
+          ? { ...r, guests: data.reservation.guests, tables: data.reservation.tables, floor: data.reservation.floor }
+          : r
+      ))
+      setEditingGuests(null)
+    } else {
+      setEditError(data.error ?? 'Error al actualizar')
+    }
     setLoading(null)
   }
 
@@ -237,9 +262,36 @@ export default function ReservasAdminTable({
                         {r.customer.phone}
                         {r.customer.birthDate ? ` · ${formatDateShort(r.customer.birthDate.split('T')[0])}` : ''}
                       </div>
-                      <div style={{ fontSize: 12, color: '#888' }}>
-                        {r.guests} persona{r.guests !== 1 ? 's' : ''} · Mesa{tables.length > 1 ? 's' : ''} {tables.join(', ')} · Planta {r.floor}
-                      </div>
+                      {editingGuests?.id === r.id ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4, flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => setEditingGuests(e => e ? { ...e, guests: Math.max(1, e.guests - 1) } : e)}
+                            style={{ width: 22, height: 22, border: '1px solid #D8DAC8', borderRadius: 2, background: 'transparent', cursor: 'pointer', color: RED, fontSize: 14, lineHeight: 1 }}>−</button>
+                          <span style={{ fontSize: 13, fontWeight: 700, minWidth: 22, textAlign: 'center' }}>{editingGuests.guests}</span>
+                          <button
+                            onClick={() => setEditingGuests(e => e ? { ...e, guests: Math.min(12, e.guests + 1) } : e)}
+                            style={{ width: 22, height: 22, border: '1px solid #D8DAC8', borderRadius: 2, background: 'transparent', cursor: 'pointer', color: RED, fontSize: 14, lineHeight: 1 }}>+</button>
+                          <button
+                            onClick={saveEditGuests}
+                            disabled={loading === r.id}
+                            style={{ padding: '2px 8px', fontSize: 10, fontWeight: 700, border: 'none', borderRadius: 2, background: RED, color: CREAM, cursor: 'pointer', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                            {loading === r.id ? '...' : 'Guardar'}
+                          </button>
+                          <button
+                            onClick={() => { setEditingGuests(null); setEditError(null) }}
+                            style={{ padding: '2px 6px', fontSize: 12, border: '1px solid #D8DAC8', borderRadius: 2, background: 'transparent', color: '#888', cursor: 'pointer' }}>×</button>
+                          {editError && <span style={{ fontSize: 11, color: RED }}>{editError}</span>}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
+                          <span>{r.guests} persona{r.guests !== 1 ? 's' : ''} · Mesa{tables.length > 1 ? 's' : ''} {tables.join(', ')} · Planta {r.floor}</span>
+                          <button
+                            onClick={() => { setEditingGuests({ id: r.id, guests: r.guests }); setEditError(null) }}
+                            style={{ fontSize: 11, border: '1px solid #D8DAC8', borderRadius: 2, padding: '1px 5px', background: 'transparent', color: '#888', cursor: 'pointer' }}>
+                            ✎
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <span style={badge(r.returning ? '#FAECE7' : '#EAF3DE', r.returning ? '#7A2718' : '#2D6A4F')}>
                       {r.returning ? `${r.customer.visits} visitas` : 'Primera visita'}

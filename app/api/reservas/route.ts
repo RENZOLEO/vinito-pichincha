@@ -48,10 +48,9 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
+  // Single-service night: all reservations and blocks for the day share the same table pool.
+  const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
   const slots = TIME_SLOTS.map((time) => {
-    const slotReservations = dayReservations.filter((r) => r.time === time)
-    const slotBlocks = dayBlocks.filter((b) => b.time === null || b.time === time)
-    const usedTables = getUsedTables([...slotReservations, ...slotBlocks])
     const combo = findBestCombo(guests, usedTables)
     return {
       time,
@@ -79,25 +78,22 @@ export async function POST(req: NextRequest) {
     const dayStart = new Date(date + 'T00:00:00.000Z')
     const dayEnd = new Date(date + 'T23:59:59.999Z')
 
-    // Acquire per-slot lock so concurrent requests are serialized.
+    // Single-service night: lock per date so concurrent bookings for any slot are serialized.
     // The inner $transaction makes the re-check and insert atomic at the DB level.
-    const result = await withSlotLock(`${date}:${time}`, () =>
+    const result = await withSlotLock(date, () =>
       prisma.$transaction(async (tx) => {
-        const [slotReservations, slotBlocks] = await Promise.all([
+        const [dayReservations, dayBlocks] = await Promise.all([
           tx.reservation.findMany({
-            where: { date: { gte: dayStart, lte: dayEnd }, time },
+            where: { date: { gte: dayStart, lte: dayEnd } },
             select: { tables: true },
           }),
           tx.tableBlock.findMany({
-            where: {
-              date: { gte: dayStart, lte: dayEnd },
-              OR: [{ time: null }, { time }],
-            },
+            where: { date: { gte: dayStart, lte: dayEnd } },
             select: { tables: true },
           }),
         ])
 
-        const usedTables = getUsedTables([...slotReservations, ...slotBlocks])
+        const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
         const combo = findBestCombo(guests, usedTables)
 
         if (!combo) return null

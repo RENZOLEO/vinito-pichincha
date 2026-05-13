@@ -50,9 +50,9 @@ export const TABLE_COMBOS: { tables: number[]; min: number; max: number }[] = [
   { tables: [15], min: 1, max: 2 },
   { tables: [14, 15], min: 3, max: 4 },
   // Planta baja
-  { tables: [100], min: 4, max: 5 },
-  { tables: [101], min: 4, max: 5 },
-  { tables: [100, 101], min: 8, max: 12 },
+  { tables: [100], min: 4, max: 4 },
+  { tables: [101], min: 4, max: 4 },
+  { tables: [100, 101], min: 5, max: 8 },
   { tables: [102], min: 1, max: 2 },
   { tables: [103], min: 1, max: 2 },
 ]
