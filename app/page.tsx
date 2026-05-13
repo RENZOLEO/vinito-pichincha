@@ -15,29 +15,49 @@ export default function Home() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Barlow:wght@400;500&display=swap');
+        @font-face {
+          font-family: 'TTRicks';
+          src: url('/TTRicksTrial-Bold.ttf') format('truetype');
+          font-weight: 700;
+          font-style: normal;
+          font-display: swap;
+        }
+        @font-face {
+          font-family: 'TTRicks';
+          src: url('/TTRicksTrial-Medium.ttf') format('truetype');
+          font-weight: 500;
+          font-style: normal;
+          font-display: swap;
+        }
+        @font-face {
+          font-family: 'TTRicks';
+          src: url('/TTRicksTrial-Regular.ttf') format('truetype');
+          font-weight: 400;
+          font-style: normal;
+          font-display: swap;
+        }
       `}</style>
-      <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Barlow', sans-serif" }}>
+      <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'TTRicks', serif" }}>
         {/* Header */}
         <div style={{ background: DARK, padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Image src="/03.png" alt="VINITO Pichincha" width={100} height={44} style={{ height: 44, width: 'auto' }} priority />
-          <span style={{ color: 'rgba(236,238,225,0.45)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: "'Barlow', sans-serif" }}>
+          <span style={{ color: 'rgba(236,238,225,0.45)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: "'TTRicks', serif", fontWeight: 400 }}>
             Bar de Vinos · Rosario
           </span>
         </div>
 
         {/* Content */}
         <div style={{ maxWidth: 440, margin: '0 auto', padding: '56px 24px 48px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Barlow', sans-serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.25em', color: BLUE, textTransform: 'uppercase', marginBottom: 16 }}>
+          <div style={{ fontFamily: "'TTRicks', serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.25em', color: BLUE, textTransform: 'uppercase', marginBottom: 16 }}>
             Reservas online
           </div>
 
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 44, fontWeight: 900, color: DARK, lineHeight: 1.1, marginBottom: 14 }}>
+          <h1 style={{ fontFamily: "'TTRicks', serif", fontSize: 48, fontWeight: 700, color: DARK, lineHeight: 1.1, marginBottom: 14 }}>
             Elegí tu<br />
             <em style={{ color: RED, fontStyle: 'italic' }}>sucursal</em>
           </h1>
 
-          <p style={{ fontSize: 13, color: BLUE, marginBottom: 36, lineHeight: 1.7 }}>
+          <p style={{ fontFamily: "'TTRicks', serif", fontSize: 14, color: BLUE, marginBottom: 36, lineHeight: 1.7, fontWeight: 400 }}>
             ¿En qué Vinito querés hacer tu reserva?
           </p>
 
@@ -59,10 +79,10 @@ export default function Home() {
                 background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 8,
               }}
             >
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: DARK, marginBottom: 6 }}>
+              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 6 }}>
                 Vinito Centro
               </div>
-              <div style={{ fontFamily: "'Barlow', sans-serif", fontSize: 12, color: '#888', letterSpacing: '0.08em' }}>
+              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 12, color: '#888', fontWeight: 400 }}>
                 Wheelwright 1487
               </div>
             </a>
@@ -75,10 +95,10 @@ export default function Home() {
                 background: RED, border: `1.5px solid ${RED}`, borderRadius: 8,
               }}
             >
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: CREAM, marginBottom: 6 }}>
+              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: CREAM, marginBottom: 6 }}>
                 Vinito Pichincha
               </div>
-              <div style={{ fontFamily: "'Barlow', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)', letterSpacing: '0.08em' }}>
+              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 12, color: 'rgba(236,238,225,0.65)', fontWeight: 400 }}>
                 Jujuy 2248
               </div>
             </Link>
