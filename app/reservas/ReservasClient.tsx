@@ -301,9 +301,9 @@ export default function ReservasClient() {
                       background: selectedSlot?.time === slot.time ? RED : '#fff',
                     }}>
                     <div style={{ fontSize: 26, fontWeight: 900, color: selectedSlot?.time === slot.time ? CREAM : DARK, letterSpacing: 1 }}>{slot.time}</div>
-                    <div style={{ fontSize: 11, color: selectedSlot?.time === slot.time ? 'rgba(236,238,225,0.7)' : '#888', marginTop: 2 }}>
-                      {slot.available ? (slot.time <= '20:30' ? 'Primer turno' : 'Segundo turno') : 'Sin disponibilidad'}
-                    </div>
+                    {!slot.available && (
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>Sin disponibilidad</div>
+                    )}
                   </div>
                 ))}
               </div>
