@@ -34,7 +34,7 @@ export default function Home() {
           <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 11, letterSpacing: '0.25em', color: BLUE, textTransform: 'uppercase', marginBottom: 16 }}>
             Reservas online
           </div>
-          <h1 style={{ fontFamily: "'Zawi', sans-serif", fontSize: 32, color: DARK, lineHeight: 1.2, marginBottom: 14, fontStyle: 'italic' }}>
+          <h1 style={{ fontFamily: "'Zawi', sans-serif", fontSize: 32, color: DARK, lineHeight: 1.2, marginBottom: 14 }}>
             ¿En qué Vinito<br />querés hacer tu reserva?
           </h1>
           <p style={{ fontFamily: "'Zawi', sans-serif", fontSize: 14, color: BLUE, marginBottom: 36, lineHeight: 1.7 }}>
