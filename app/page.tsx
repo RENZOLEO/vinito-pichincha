@@ -74,12 +74,19 @@ export default function Home() {
               href="https://vinitocopascafe.meitre.com/"
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: 'block', padding: '30px 16px 26px', textDecoration: 'none',
-                background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 8,
-              }}
-            >
-              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 6 }}>
+              href="https://vinitocopascafe.meitre.com/"
+  target="_blank"
+  rel="noopener noreferrer"
+  style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 8 }}
+>
+  <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 6 }}>
+    Vinito Centro
+  </div>
+  <div style={{ fontFamily: "'TTRicks', serif", fontSize: 12, color: '#888', fontWeight: 400 }}>
+    Wheelwright 1487
+  </div>
+</a> 
+          <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 6 }}>
                 Vinito Centro
               </div>
               <div style={{ fontFamily: "'TTRicks', serif", fontSize: 12, color: '#888', fontWeight: 400 }}>
