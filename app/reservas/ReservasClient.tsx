@@ -80,7 +80,7 @@ export default function ReservasClient() {
 
   // ── Step 3: Guest count → refresh availability ────────────────────────────
   const handleGuestChange = async (delta: number) => {
-    const newVal = Math.max(1, Math.min(12, guests + delta))
+    const newVal = Math.max(1, Math.min(8, guests + delta))
     setGuests(newVal)
     if (selectedDate && selectedSlot) {
       const res = await fetch(`/api/reservas?date=${selectedDate}&guests=${newVal}`)
