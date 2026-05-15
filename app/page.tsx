@@ -36,23 +36,30 @@ export default function Home() {
           font-style: normal;
           font-display: swap;
         }
+        @font-face {
+          font-family: 'Zawi';
+          src: url('/29LTZawi-Medium.ttf') format('truetype');
+          font-weight: 500;
+          font-style: normal;
+          font-display: swap;
+        }
       `}</style>
-      <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'TTRicks', serif" }}>
+      <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Zawi', serif" }}>
         <div style={{ background: DARK, padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Image src="/03.png" alt="VINITO Pichincha" width={100} height={44} style={{ height: 44, width: 'auto' }} priority />
-          <span style={{ color: 'rgba(236,238,225,0.45)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: "'TTRicks', serif", fontWeight: 400 }}>
+          <span style={{ color: 'rgba(236,238,225,0.45)', fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: "'Zawi', serif", fontWeight: 500 }}>
             Bar de Vinos · Rosario
           </span>
         </div>
         <div style={{ maxWidth: 440, margin: '0 auto', padding: '56px 24px 48px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'TTRicks', serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.25em', color: BLUE, textTransform: 'uppercase', marginBottom: 16 }}>
+          <div style={{ fontFamily: "'Zawi', serif", fontSize: 11, fontWeight: 500, letterSpacing: '0.25em', color: BLUE, textTransform: 'uppercase', marginBottom: 16 }}>
             Reservas online
           </div>
           <h1 style={{ fontFamily: "'TTRicks', serif", fontSize: 48, fontWeight: 700, color: DARK, lineHeight: 1.1, marginBottom: 14 }}>
             Elegí tu<br />
             <em style={{ color: RED, fontStyle: 'italic' }}>sucursal</em>
           </h1>
-          <p style={{ fontFamily: "'TTRicks', serif", fontSize: 14, color: BLUE, marginBottom: 36, lineHeight: 1.7, fontWeight: 400 }}>
+          <p style={{ fontFamily: "'Zawi', serif", fontSize: 14, color: BLUE, marginBottom: 36, lineHeight: 1.7, fontWeight: 500 }}>
             ¿En qué Vinito querés hacer tu reserva?
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
@@ -62,12 +69,12 @@ export default function Home() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 8 }}>
-              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 6 }}>Vinito Centro</div>
-              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 12, color: '#888', fontWeight: 400 }}>Wheelwright 1487</div>
+              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: DARK, marginBottom: 6 }}>Vinito Wheelwright</div>
+              <div style={{ fontFamily: "'Zawi', serif", fontSize: 12, color: '#888', fontWeight: 500 }}>Wheelwright 1487</div>
             </a>
             <Link href="/reservas" style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
               <div style={{ fontFamily: "'TTRicks', serif", fontSize: 17, fontWeight: 700, color: CREAM, marginBottom: 6 }}>Vinito Pichincha</div>
-              <div style={{ fontFamily: "'TTRicks', serif", fontSize: 12, color: 'rgba(236,238,225,0.65)', fontWeight: 400 }}>Jujuy 2248</div>
+              <div style={{ fontFamily: "'Zawi', serif", fontSize: 12, color: 'rgba(236,238,225,0.65)', fontWeight: 500 }}>Jujuy 2248</div>
             </Link>
           </div>
         </div>
