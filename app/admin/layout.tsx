@@ -1,15 +1,25 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const referer = headersList.get("referer") ?? "";
+  const xUrl = headersList.get("x-url") ?? headersList.get("x-invoke-path") ?? "";
+  const isLoginPage = referer.includes("/admin/login") || xUrl.includes("/admin/login");
+
   const session = await getSession();
 
-  if (!session) {
+  if (!session && !isLoginPage) {
     redirect("/admin/login");
+  }
+
+  if (!session) {
+    return <>{children}</>;
   }
 
   const role = (session?.user as { role?: "ADMIN1" | "ADMIN2" } | undefined)?.role;
