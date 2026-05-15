@@ -34,12 +34,11 @@ export default function Home() {
           <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 11, letterSpacing: '0.25em', color: BLUE, textTransform: 'uppercase', marginBottom: 16 }}>
             Reservas online
           </div>
-          <h1 style={{ fontFamily: "'Zawi', sans-serif", fontSize: 48, color: DARK, lineHeight: 1.1, marginBottom: 14 }}>
-            Elegí tu<br />
-            <em style={{ color: RED, fontStyle: 'italic' }}>sucursal</em>
+          <h1 style={{ fontFamily: "'Zawi', sans-serif", fontSize: 32, color: DARK, lineHeight: 1.2, marginBottom: 14, fontStyle: 'italic' }}>
+            ¿En qué Vinito<br />querés hacer tu reserva?
           </h1>
           <p style={{ fontFamily: "'Zawi', sans-serif", fontSize: 14, color: BLUE, marginBottom: 36, lineHeight: 1.7 }}>
-            ¿En qué Vinito querés hacer tu reserva?
+            Elegí tu sucursal
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(32,32,32,0.12)' }} />
@@ -48,11 +47,11 @@ export default function Home() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 8 }}>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 17, color: DARK, marginBottom: 6 }}>Vinito Wheelwright</div>
+              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 15, color: DARK, marginBottom: 6 }}>Vinito Wheelwright</div>
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: '#888' }}>Wheelwright 1487</div>
             </a>
             <Link href="/reservas" style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 17, color: CREAM, marginBottom: 6 }}>Vinito Pichincha</div>
+              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 15, color: CREAM, marginBottom: 6 }}>Vinito Pichincha</div>
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Jujuy 2248</div>
             </Link>
           </div>
