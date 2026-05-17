@@ -1,12 +1,27 @@
 // middleware.ts
 import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-export default withAuth({
-  pages: {
-    signIn: "/admin/login",
+export default withAuth(
+  function middleware(req) {
+    return NextResponse.next();
   },
-});
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+    pages: {
+      signIn: "/admin/login",
+    },
+  }
+);
 
 export const config = {
-  matcher: ["/admin/((?!login).*)"],
+  matcher: [
+    "/admin/vinos/:path*",
+    "/admin/platos/:path*",
+    "/admin/reservas/:path*",
+    "/admin/importar/:path*",
+    "/admin/estadisticas/:path*",
+  ],
 };
