@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { MONTHS, WEEKDAYS, formatDateLong } from '@/lib/reservas/config'
 
@@ -21,18 +21,16 @@ export default function ReservasClient() {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
   const [guests, setGuests] = useState(2)
   const [availableSlot, setAvailableSlot] = useState<Slot | null>(null)
-  const [form, setForm] = useState({ nombre: '', apellido: '', telefono: '', birthDate: '' })
+  const [form, setForm] = useState({ nombre: '', apellido: '', telefono: '', birthDate: '', email: '' })
   const [loading, setLoading] = useState(false)
   const [confirmation, setConfirmation] = useState<null | { returning: boolean; tables: number[]; floor: string; clientName: string }>(null)
   const [error, setError] = useState<string | null>(null)
   const [isClosed, setIsClosed] = useState(false)
   const [tuesdayMsg, setTuesdayMsg] = useState(false)
 
-  // Run only on the client to avoid SSR/hydration mismatch (server is UTC, browser is Argentina)
   useEffect(() => {
     const now = new Date()
     if (now.getHours() < 20) return
-    // Skip ahead past any Tuesday (e.g. Monday night rolls over to Tuesday)
     let daysAhead = 1
     while (new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead).getDay() === 2) {
       daysAhead++
@@ -53,7 +51,6 @@ export default function ReservasClient() {
 
   const goStep = (n: Step) => { setError(null); setStep(n) }
 
-  // ── Step 1: Calendar ──────────────────────────────────────────────────────
   const firstDay = new Date(calYear, calMonth, 1).getDay()
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate()
 
@@ -78,7 +75,6 @@ export default function ReservasClient() {
     }
   }
 
-  // ── Step 3: Guest count → refresh availability ────────────────────────────
   const handleGuestChange = async (delta: number) => {
     const newVal = Math.max(1, Math.min(8, guests + delta))
     setGuests(newVal)
@@ -113,7 +109,6 @@ export default function ReservasClient() {
     }
   }
 
-  // ── Step 4: Confirm ───────────────────────────────────────────────────────
   const handleConfirm = async () => {
     if (!selectedDate || !selectedSlot || !availableSlot) return
     setLoading(true)
@@ -143,11 +138,10 @@ export default function ReservasClient() {
   const resetAll = () => {
     setStep(1); setSelectedDate(null); setSelectedSlot(null)
     setSlots([]); setGuests(2); setAvailableSlot(null)
-    setForm({ nombre: '', apellido: '', telefono: '', birthDate: '' })
+    setForm({ nombre: '', apellido: '', telefono: '', birthDate: '', email: '' })
     setConfirmation(null); setError(null)
   }
 
-  // ── Progress bar ──────────────────────────────────────────────────────────
   const progress = step === 5 ? 100 : (step / 4) * 100
 
   const inputStyle: React.CSSProperties = {
@@ -172,18 +166,15 @@ export default function ReservasClient() {
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: "'Raleway', sans-serif" }}>
 
-      {/* Header */}
       <div style={{ background: DARK, padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Image src="/03.png" alt="VINITO Pichincha" width={100} height={44} style={{ height: 44, width: 'auto' }} priority />
         <span style={{ color: 'rgba(236,238,225,0.5)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase' }}>Jujuy 2248 · Rosario</span>
       </div>
 
-      {/* Progress */}
       <div style={{ height: 4, background: '#D8DAC8' }}>
         <div style={{ height: '100%', background: RED, width: `${progress}%`, transition: 'width 0.4s ease' }} />
       </div>
 
-      {/* Content */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '28px 20px' }}>
 
         {error && (
@@ -211,7 +202,6 @@ export default function ReservasClient() {
               </div>
             )}
 
-            {/* Calendar nav */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <button style={{ ...btnSecondary, marginBottom: 0, padding: '6px 12px' }}
                 onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1) } else setCalMonth(m => m - 1) }}>←</button>
@@ -276,16 +266,12 @@ export default function ReservasClient() {
             {slots.length > 0 && slots.every(s => !s.available) ? (
               <div style={{ background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 4, padding: '28px 20px', textAlign: 'center', marginBottom: 20 }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>🍷</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: DARK, marginBottom: 8 }}>
-                  Sin disponibilidad
-                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: DARK, marginBottom: 8 }}>Sin disponibilidad</div>
                 <div style={{ fontSize: 13, color: '#888', lineHeight: 1.6 }}>
                   Lo sentimos, no hay mesas disponibles para el horario seleccionado.<br />
                   Podés elegir otro horario o fecha.
                 </div>
-                <button style={{ ...btnSecondary, marginTop: 20, marginBottom: 0 }} onClick={() => goStep(1)}>
-                  ← Elegir otra fecha
-                </button>
+                <button style={{ ...btnSecondary, marginTop: 20, marginBottom: 0 }} onClick={() => goStep(1)}>← Elegir otra fecha</button>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
@@ -299,9 +285,7 @@ export default function ReservasClient() {
                       background: selectedSlot?.time === slot.time ? RED : '#fff',
                     }}>
                     <div style={{ fontSize: 26, fontWeight: 900, color: selectedSlot?.time === slot.time ? CREAM : DARK, letterSpacing: 1 }}>{slot.time}</div>
-                    {!slot.available && (
-                      <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>Sin disponibilidad</div>
-                    )}
+                    {!slot.available && <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>Sin disponibilidad</div>}
                   </div>
                 ))}
               </div>
@@ -374,9 +358,15 @@ export default function ReservasClient() {
                 <input type="date" style={inputStyle} value={form.birthDate}
                   onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))} />
               </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                  Email <span style={{ color: '#aaa', fontWeight: 400, textTransform: 'none' }}>(opcional — para confirmación)</span>
+                </label>
+                <input type="email" style={inputStyle} placeholder="tu@email.com" value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              </div>
             </div>
 
-            {/* Summary */}
             <div style={{ background: '#fff', border: `1.5px solid #D8DAC8`, borderRadius: 4, padding: 16, marginBottom: 18 }}>
               {[
                 ['Fecha', selectedDate ? formatDateLong(selectedDate) : '—'],
@@ -431,7 +421,13 @@ export default function ReservasClient() {
               ))}
             </div>
 
-            <div style={{ background: '#EAF3DE', color: '#2D6A4F', borderRadius: 4, padding: '10px 14px', maxWidth: 360, margin: '0 auto 20px', fontSize: 12, fontWeight: 600, textAlign: 'left' }}>
+            {form.email && (
+              <div style={{ background: '#EAF3DE', color: '#2D6A4F', borderRadius: 4, padding: '10px 14px', maxWidth: 360, margin: '0 auto 16px', fontSize: 12, fontWeight: 600, textAlign: 'left' }}>
+                ✓ Te enviamos un email de confirmación a {form.email}
+              </div>
+            )}
+
+            <div style={{ background: '#EEF3F7', color: BLUE, borderRadius: 4, padding: '10px 14px', maxWidth: 360, margin: '0 auto 20px', fontSize: 12, fontWeight: 600, textAlign: 'left' }}>
               Recibirás un mensaje de WhatsApp confirmando tu reserva y un recordatorio 1 hora antes.
             </div>
 
