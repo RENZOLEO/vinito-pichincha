@@ -1,28 +1,18 @@
 import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const pathname = headersList.get("x-invoke-path") ?? "";
-
-  // La página de login no necesita sesión ni navbar
-  if (pathname.includes("/admin/login")) {
-    return <>{children}</>;
-  }
-
   const session = await getSession();
-
-  if (!session) {
-    redirect("/admin/login");
-  }
-
   const role = (session?.user as { role?: "ADMIN1" | "ADMIN2" } | undefined)?.role;
   const isAdmin1 = role === "ADMIN1";
+
+  // Sin sesión = solo renderizar children (el middleware ya redirigió si era necesario)
+  if (!session) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-vinito-cream">
