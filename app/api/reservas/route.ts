@@ -1,11 +1,9 @@
-// app/api/reservas/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { findBestCombo, getUsedTables, TIME_SLOTS } from '@/lib/reservas/config'
+import { sendConfirmationEmail } from '@/lib/email'
+import crypto from 'crypto'
 
-// Serializes concurrent booking attempts for the same date+time slot.
-// Node.js is single-threaded: the check between while-exit and slotLocks.set
-// is synchronous, so no two callers can both see "no lock" at the same time.
 const slotLocks = new Map<string, Promise<void>>()
 
 async function withSlotLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
@@ -23,8 +21,6 @@ async function withSlotLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
   }
 }
 
-// GET /api/reservas?date=2024-12-20&guests=4
-// Returns available time slots for a given date and guest count
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const dateStr = searchParams.get('date')
@@ -48,7 +44,6 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  // Single-service night: all reservations and blocks for the day share the same table pool.
   const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
   const slots = TIME_SLOTS.map((time) => {
     const combo = findBestCombo(guests, usedTables)
@@ -63,12 +58,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ slots })
 }
 
-// POST /api/reservas
-// Creates a reservation
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { date, time, guests, nombre, apellido, telefono, birthDate } = body
+    const { date, time, guests, nombre, apellido, telefono, birthDate, email } = body
 
     if (!date || !time || !guests || !nombre || !apellido || !telefono) {
       return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 })
@@ -78,8 +71,6 @@ export async function POST(req: NextRequest) {
     const dayStart = new Date(date + 'T00:00:00.000Z')
     const dayEnd = new Date(date + 'T23:59:59.999Z')
 
-    // Single-service night: lock per date so concurrent bookings for any slot are serialized.
-    // The inner $transaction makes the re-check and insert atomic at the DB level.
     const result = await withSlotLock(date, () =>
       prisma.$transaction(async (tx) => {
         const [dayReservations, dayBlocks] = await Promise.all([
@@ -108,6 +99,7 @@ export async function POST(req: NextRequest) {
               data: {
                 visits: { increment: 1 },
                 lastVisit: reservationDate,
+                email: existing.email ?? (email || null),
                 birthDate: existing.birthDate ?? (birthDate ? new Date(birthDate + 'T00:00:00.000Z') : null),
               },
             })
@@ -115,12 +107,15 @@ export async function POST(req: NextRequest) {
               data: {
                 name: customerName,
                 phone: telefono,
+                email: email || null,
                 birthDate: birthDate ? new Date(birthDate + 'T00:00:00.000Z') : null,
                 visits: 1,
                 firstVisit: reservationDate,
                 lastVisit: reservationDate,
               },
             })
+
+        const cancelToken = crypto.randomUUID()
 
         const reservation = await tx.reservation.create({
           data: {
@@ -131,10 +126,11 @@ export async function POST(req: NextRequest) {
             floor: combo.floor,
             customerId: customer.id,
             returning: isReturning,
+            cancelToken,
           },
         })
 
-        return { reservation, combo, customerName, isReturning }
+        return { reservation, combo, customerName, isReturning, cancelToken, customerEmail: customer.email }
       })
     )
 
@@ -145,7 +141,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { reservation, combo, customerName, isReturning } = result
+    const { reservation, combo, customerName, isReturning, cancelToken, customerEmail } = result
+
+    // Send confirmation email if customer provided email
+    if (customerEmail) {
+      try {
+        const { formatDateLong } = await import('@/lib/reservas/config')
+        await sendConfirmationEmail({
+          to: customerEmail,
+          nombre: customerName.split(' ')[0],
+          fecha: formatDateLong(date),
+          hora: time,
+          personas: guests,
+          cancelToken,
+        })
+      } catch (e) {
+        console.error('Email confirmation error:', e)
+      }
+    }
 
     return NextResponse.json({
       ok: true,
