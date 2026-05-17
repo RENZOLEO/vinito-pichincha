@@ -1,27 +1,29 @@
 // middleware.ts
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth(
-  function middleware(req) {
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Dejar pasar el login sin verificar
+  if (pathname.startsWith("/admin/login")) {
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-    pages: {
-      signIn: "/admin/login",
-    },
   }
-);
+
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+  });
+
+  if (!token) {
+    const loginUrl = new URL("/admin/login", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    "/admin/vinos/:path*",
-    "/admin/platos/:path*",
-    "/admin/reservas/:path*",
-    "/admin/importar/:path*",
-    "/admin/estadisticas/:path*",
-  ],
+  matcher: ["/admin/:path*"],
 };
