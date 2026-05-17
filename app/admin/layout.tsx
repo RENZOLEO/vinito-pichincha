@@ -8,18 +8,17 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const headersList = await headers();
-  const referer = headersList.get("referer") ?? "";
-  const xUrl = headersList.get("x-url") ?? headersList.get("x-invoke-path") ?? "";
-  const isLoginPage = referer.includes("/admin/login") || xUrl.includes("/admin/login");
+  const pathname = headersList.get("x-invoke-path") ?? "";
+
+  // La página de login no necesita sesión ni navbar
+  if (pathname.includes("/admin/login")) {
+    return <>{children}</>;
+  }
 
   const session = await getSession();
 
-  if (!session && !isLoginPage) {
-    redirect("/admin/login");
-  }
-
   if (!session) {
-    return <>{children}</>;
+    redirect("/admin/login");
   }
 
   const role = (session?.user as { role?: "ADMIN1" | "ADMIN2" } | undefined)?.role;
