@@ -16,8 +16,8 @@ enum Category {
 }
 
 enum Role {
-  ADMIN1 // Socio: ve reportes, valorización, CRUD completo
-  ADMIN2 // Operativo: toggle disponible, editar stock manual, registrar ventas
+  ADMIN1
+  ADMIN2
 }
 
 enum DrinkCategory {
@@ -80,8 +80,8 @@ model Wine {
   servingTemp String?
   pairing     String?
   tastingNote String?
-  price       Int? // Precio de venta (lista)
-  cost        Int? // Costo de adquisición (para valorización/margen)
+  price       Int?
+  cost        Int?
   stock       Int      @default(1)
   fichaUrl    String?
   available   Boolean  @default(true)
@@ -122,27 +122,25 @@ model Sale {
   @@index([createdAt])
 }
 
-/// Snapshot de valorización de mercadería en un momento dado.
-/// Lo puede crear Admin1 con un botón, o correr desde un cron diario.
 model ValuationSnapshot {
   id               Int      @id @default(autoincrement())
   takenAt          DateTime @default(now())
-  totalUnits       Int // sumatoria de stock
-  totalCostValue   Int // Σ(stock × cost) — 0 si no hay costos cargados
-  totalPriceValue  Int // Σ(stock × price)
-  byCategoryJson   String // JSON: { TINTO: { units, costValue, priceValue }, ... }
-  byZoneJson       String // JSON: { "Mendoza": { units, costValue, priceValue }, ... }
-  byWineryJson     String // JSON: idem por bodega
-  wineCount        Int // cantidad de etiquetas distintas con stock > 0
+  totalUnits       Int
+  totalCostValue   Int
+  totalPriceValue  Int
+  byCategoryJson   String
+  byZoneJson       String
+  byWineryJson     String
+  wineCount        Int
 
   @@index([takenAt])
 }
-// ── RESERVAS ──────────────────────────────────────────────────────────────────
 
 model Customer {
   id           Int           @id @default(autoincrement())
   name         String
   phone        String        @unique
+  email        String?
   birthDate    DateTime?
   visits       Int           @default(0)
   firstVisit   DateTime?
@@ -154,29 +152,45 @@ model Customer {
 }
 
 model Reservation {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   date         DateTime
-  time         String   // "20:00" | "20:30" | "20:45" | "21:00"
+  time         String
   guests       Int
-  tables       String   // JSON: "[1,2]"
-  floor        String   // "alta" | "baja"
-  returning    Boolean  @default(false)
-  completed    Boolean  @default(false)
-  feedbackSent Boolean  @default(false)
+  tables       String
+  floor        String
+  returning    Boolean   @default(false)
+  completed    Boolean   @default(false)
+  feedbackSent Boolean   @default(false)
+  cancelToken  String?   @unique
   customerId   Int
-  customer     Customer @relation(fields: [customerId], references: [id])
-  createdAt    DateTime @default(now())
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  createdAt    DateTime  @default(now())
+  feedback     Feedback?
 
   @@index([date])
   @@index([customerId])
   @@index([completed])
+  @@index([cancelToken])
+}
+
+model Feedback {
+  id            Int         @id @default(autoincrement())
+  reservationId Int         @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+  customerName  String
+  reservationDate DateTime
+  rating        Int?
+  comment       String?
+  createdAt     DateTime    @default(now())
+
+  @@index([reservationId])
 }
 
 model TableBlock {
   id        Int      @id @default(autoincrement())
   date      DateTime
-  time      String?  // null = all day; "20:00" | "20:30" | "20:45" | "21:00"
-  tables    String   // JSON array: "[1,2]"
+  time      String?
+  tables    String
   reason    String?
   createdAt DateTime @default(now())
 
