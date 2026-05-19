@@ -26,7 +26,7 @@ export function CartaClient({ initialWines, initialTotal, zones, varietals, init
   const [section, setSection] = useState<Section>(initialSection);
   const [wines, setWines] = useState(initialWines);
   const [total, setTotal] = useState(initialTotal);
-  const [category, setCategory] = useState("TINTO");
+  const [category, setCategory] = useState("TODOS");
   const [zone, setZone] = useState<string | null>(null);
   const [varietal, setVarietal] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -49,7 +49,8 @@ export function CartaClient({ initialWines, initialTotal, zones, varietals, init
   const fetchWines = useCallback(
     async (cat: string, z: string | null, v: string | null, s: string) => {
       setLoading(true);
-      const params = new URLSearchParams({ category: cat });
+      const params = new URLSearchParams();
+      if (cat !== "TODOS") params.set("category", cat);
       if (z) params.set("zone", z);
       if (v) params.set("varietal", v);
       if (s) params.set("search", s);

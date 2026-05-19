@@ -18,7 +18,7 @@ export default async function CartaPage({ searchParams }: { searchParams: Search
 
   const [wines, total, zones, varietals] = await Promise.all([
     prisma.wine.findMany({
-      where: { available: true, category: "TINTO" },
+      where: { available: true },
       select: {
         id: true, name: true, winery: true, category: true,
         varietal: true, zone: true, subZone: true, vintage: true,
@@ -27,7 +27,7 @@ export default async function CartaPage({ searchParams }: { searchParams: Search
       orderBy: { name: "asc" },
       take: 30,
     }),
-    prisma.wine.count({ where: { available: true, category: "TINTO" } }),
+    prisma.wine.count({ where: { available: true } }),
     prisma.wine.findMany({
       where: { available: true },
       select: { zone: true, category: true },

@@ -1,6 +1,7 @@
 "use client";
 
 const CATEGORIES = [
+  { key: "TODOS", label: "Todos" },
   { key: "TINTO", label: "Tintos" },
   { key: "BLANCO", label: "Blancos" },
   { key: "ROSADO", label: "Rosados" },
