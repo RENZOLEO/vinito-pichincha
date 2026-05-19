@@ -48,7 +48,7 @@ export default function FeedbackPage() {
   return (
     <div style={{ minHeight: '100vh', background: CREAM, fontFamily: 'sans-serif' }}>
       <div style={{ background: DARK, padding: '16px 24px' }}>
-        <h1 style={{ color: RED, fontSize: 22px, margin: 0, letterSpacing: 3 }}>VINITO</h1>
+        <h1 style={{ color: RED, fontSize: 22, margin: 0, letterSpacing: 3 }}>VINITO</h1>
         <p style={{ color: 'rgba(236,238,225,0.5)', fontSize: 9, margin: '4px 0 0', letterSpacing: '0.3em', textTransform: 'uppercase' }}>Pichincha · Jujuy 2248, Rosario</p>
       </div>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '40px 24px' }}>
