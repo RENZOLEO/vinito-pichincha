@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// rewrite wheelwright
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
