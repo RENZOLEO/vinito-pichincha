@@ -76,7 +76,7 @@ export default function ReservasClient() {
   }
 
   const handleGuestChange = async (delta: number) => {
-    const newVal = Math.max(1, Math.min(8, guests + delta))
+    const newVal = Math.max(1, Math.min(10, guests + delta))
     setGuests(newVal)
     if (selectedDate && selectedSlot) {
       const res = await fetch(`/api/reservas?date=${selectedDate}&guests=${newVal}`)
