@@ -174,14 +174,14 @@ model Reservation {
 }
 
 model Feedback {
-  id            Int         @id @default(autoincrement())
-  reservationId Int         @unique
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-  customerName  String
+  id              Int         @id @default(autoincrement())
+  reservationId   Int         @unique
+  reservation     Reservation @relation(fields: [reservationId], references: [id])
+  customerName    String
   reservationDate DateTime
-  rating        Int?
-  comment       String?
-  createdAt     DateTime    @default(now())
+  rating          Int?
+  comment         String?
+  createdAt       DateTime    @default(now())
 
   @@index([reservationId])
 }
@@ -195,4 +195,20 @@ model TableBlock {
   createdAt DateTime @default(now())
 
   @@index([date])
+}
+
+model WaitingList {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  guests    Int
+  nombre    String
+  apellido  String
+  telefono  String
+  birthDate DateTime?
+  email     String?
+  notified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([notified])
 }
