@@ -35,7 +35,7 @@ export default function Home() {
             Reservas online
           </div>
           <h1 style={{ fontFamily: "'Zawi', sans-serif", fontSize: 32, color: DARK, lineHeight: 1.2, marginBottom: 14 }}>
-            ¿En qué Vinito<br />querés hacer tu reserva?
+            ¿En qué Vinito querés hacer tu reserva?
           </h1>
           <p style={{ fontFamily: "'Zawi', sans-serif", fontSize: 14, color: BLUE, marginBottom: 36, lineHeight: 1.7 }}>
             Elegí tu sucursal
@@ -45,13 +45,13 @@ export default function Home() {
             <div style={{ width: 4, height: 4, borderRadius: '50%', background: RED }} />
             <div style={{ flex: 1, height: 1, background: 'rgba(32,32,32,0.12)' }} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 8 }}>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 15, color: DARK, marginBottom: 6 }}>Vinito Wheelwright</div>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: '#888' }}>Wheelwright 1487</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
+              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Wheelwright</div>
+              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Wheelwright 1487</div>
             </a>
-            <Link href="/reservas" style={{ display: 'block', padding: '30px 16px 26px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 15, color: CREAM, marginBottom: 6 }}>Vinito Pichincha</div>
+            <Link href="/reservas" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
+              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Pichincha</div>
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Jujuy 2248</div>
             </Link>
           </div>
