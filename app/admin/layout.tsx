@@ -10,8 +10,8 @@ export default async function AdminLayout({
   const isAdmin1 = role === "ADMIN1";
 
   // Sin sesión = solo renderizar children (el middleware ya redirigió si era necesario)
-  if (!session) {
-  redirect("/admin/login");
+ if (!session) {
+  return <>{children}</>;
 }
 
   return (
