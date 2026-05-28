@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
       date: { gte: dayStart, lte: dayEnd },
       completed: true,
       feedbackSent: false,
+      noShow: false,
     },
     include: { customer: true },
   })
