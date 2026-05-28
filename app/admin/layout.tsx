@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { LogoutButton } from "@/components/LogoutButton";
 export default async function AdminLayout({
   children,
 }: {
