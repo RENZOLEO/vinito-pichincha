@@ -50,7 +50,7 @@ export default function Home() {
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Wheelwright</div>
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Wheelwright 1487</div>
             </a>
-            <Link href="/reservas" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
+            <Link href="/reservas/pichincha" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Pichincha</div>
               <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Jujuy 2248</div>
             </Link>
