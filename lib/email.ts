@@ -4,6 +4,12 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 const BASE_URL = process.env.NEXTAUTH_URL ?? 'https://vinitorosario.com'
 
+const LOGO_HEADER = `
+  <div style="background: #202020; padding: 20px 24px; text-align: center;">
+    <img src="https://vinitorosario.com/logo-vinito-pichincha.png" alt="VINITO Pichincha" style="height: 52px; width: auto;" />
+  </div>
+`
+
 export async function sendConfirmationEmail({
   to,
   nombre,
@@ -27,10 +33,7 @@ export async function sendConfirmationEmail({
     subject: '¡Tu reserva está confirmada! · Vinito Pichincha',
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; background: #ECEEE1; padding: 0;">
-        <div style="background: #202020; padding: 20px 24px;">
-          <h1 style="color: #C54329; font-size: 26px; margin: 0; letter-spacing: 3px;">VINITO</h1>
-          <p style="color: rgba(236,238,225,0.5); font-size: 10px; margin: 4px 0 0; letter-spacing: 3px; text-transform: uppercase;">Pichincha · Jujuy 2248, Rosario</p>
-        </div>
+        ${LOGO_HEADER}
         <div style="padding: 32px 24px;">
           <h2 style="color: #202020; font-size: 22px; margin: 0 0 8px;">¡Reserva confirmada, ${nombre}!</h2>
           <p style="color: #666; font-size: 14px; margin: 0 0 24px; line-height: 1.6;">Te esperamos con todo listo. Aquí están los detalles:</p>
@@ -81,10 +84,7 @@ export async function sendFeedbackEmail({
     subject: '¿Cómo estuvo tu noche en Vinito? 🍷',
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; background: #ECEEE1; padding: 0;">
-        <div style="background: #202020; padding: 20px 24px;">
-          <h1 style="color: #C54329; font-size: 26px; margin: 0; letter-spacing: 3px;">VINITO</h1>
-          <p style="color: rgba(236,238,225,0.5); font-size: 10px; margin: 4px 0 0; letter-spacing: 3px; text-transform: uppercase;">Pichincha · Jujuy 2248, Rosario</p>
-        </div>
+        ${LOGO_HEADER}
         <div style="padding: 32px 24px;">
           <h2 style="color: #202020; font-size: 22px; margin: 0 0 8px;">¡Hola, ${nombre}!</h2>
           <p style="color: #666; font-size: 14px; margin: 0 0 24px; line-height: 1.6;">
