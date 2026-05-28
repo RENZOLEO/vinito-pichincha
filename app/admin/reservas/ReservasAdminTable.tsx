@@ -7,11 +7,12 @@ import { MONTHS, formatDateLong, formatDateShort, TIME_SLOTS, TABLE_COMBOS } fro
 type Customer = {
   id: number; name: string; phone: string; visits: number
   birthDate: string | null; firstVisit: string | null; lastVisit: string | null
+  noShowCount: number; blacklisted: boolean
 }
 type Reservation = {
   id: number; date: string; time: string; guests: number
   tables: string; floor: string; returning: boolean
-  completed: boolean; feedbackSent: boolean; customer: Customer
+  completed: boolean; noShow: boolean; feedbackSent: boolean; customer: Customer
 }
 type TableBlock = {
   id: number; date: string; time: string | null; tables: string; reason: string | null
@@ -93,6 +94,21 @@ export default function ReservasAdminTable({
     setReservations(rs => rs.map(r => r.id === id ? { ...r, completed: true } : r))
     const completed = reservations.find(r => r.id === id)
     if (completed) setFeedbackPending(fp => [...fp, { ...completed, completed: true }])
+    setLoading(null)
+  }
+
+  const markNoShow = async (id: number) => {
+    const r = reservations.find(r => r.id === id)
+    if (!r) return
+    if (!confirm(`¿Marcar a ${r.customer.name} como NO asistió? Si acumula 2 inasistencias quedará en lista negra.`)) return
+    setLoading(id)
+    await fetch('/api/admin/reservas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, noShow: true }),
+    })
+    setReservations(rs => rs.map(r => r.id === id ? { ...r, noShow: true } : r))
+    setFeedbackPending(fp => fp.filter(r => r.id !== id))
     setLoading(null)
   }
 
@@ -202,6 +218,9 @@ export default function ReservasAdminTable({
     !searchQ || c.name.toLowerCase().includes(searchQ.toLowerCase()) || c.phone.includes(searchQ)
   )
 
+  // Feedback pendiente solo de reservas asistidas (no noShow)
+  const feedbackPendingFiltered = feedbackPending.filter(r => !r.noShow)
+
   return (
     <div style={{ fontFamily: "'Raleway', sans-serif", color: DARK }}>
 
@@ -222,7 +241,7 @@ export default function ReservasAdminTable({
               borderBottomStyle: 'solid', borderBottomColor: tab === t ? RED : 'transparent',
               letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: -2,
             }}>
-            {t === 'feedback' && feedbackPending.length > 0 ? `${t} (${feedbackPending.length})` : t}
+            {t === 'feedback' && feedbackPendingFiltered.length > 0 ? `${t} (${feedbackPendingFiltered.length})` : t}
           </button>
         ))}
       </div>
@@ -257,10 +276,22 @@ export default function ReservasAdminTable({
               : reservations.map(r => {
                 const tables: number[] = JSON.parse(r.tables)
                 return (
-                  <div key={r.id} style={{ ...card, display: 'grid', gridTemplateColumns: '60px 1fr auto auto auto', alignItems: 'center', gap: 12 }}>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: RED, letterSpacing: 1 }}>{r.time}</div>
+                  <div key={r.id} style={{
+                    ...card,
+                    display: 'grid',
+                    gridTemplateColumns: '60px 1fr auto',
+                    alignItems: 'center',
+                    gap: 12,
+                    opacity: r.noShow ? 0.6 : 1,
+                    borderLeft: r.noShow ? `3px solid #999` : r.completed ? `3px solid #2D6A4F` : '1.5px solid #D8DAC8',
+                  }}>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: r.noShow ? '#999' : RED, letterSpacing: 1 }}>{r.time}</div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700 }}>{r.customer.name}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {r.customer.name}
+                        {r.noShow && <span style={badge('#F0F0F0', '#888')}>No asistió</span>}
+                        {r.customer.blacklisted && <span style={badge('#FCEBEB', RED)}>Lista negra</span>}
+                      </div>
                       <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
                         {r.customer.phone}
                         {r.customer.birthDate ? ` · ${formatDateShort(r.customer.birthDate.split('T')[0])}` : ''}
@@ -283,21 +314,38 @@ export default function ReservasAdminTable({
                       ) : (
                         <div style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
                           <span>{r.guests} persona{r.guests !== 1 ? 's' : ''} · Mesa{tables.length > 1 ? 's' : ''} {tables.join(', ')} · Planta {r.floor}</span>
-                          <button onClick={() => { setEditingGuests({ id: r.id, guests: r.guests }); setEditError(null) }}
-                            style={{ fontSize: 11, border: '1px solid #D8DAC8', borderRadius: 2, padding: '1px 5px', background: 'transparent', color: '#888', cursor: 'pointer' }}>✎</button>
+                          {!r.noShow && !r.completed && (
+                            <button onClick={() => { setEditingGuests({ id: r.id, guests: r.guests }); setEditError(null) }}
+                              style={{ fontSize: 11, border: '1px solid #D8DAC8', borderRadius: 2, padding: '1px 5px', background: 'transparent', color: '#888', cursor: 'pointer' }}>✎</button>
+                          )}
                         </div>
                       )}
                     </div>
-                    <span style={badge(r.returning ? '#FAECE7' : '#EAF3DE', r.returning ? '#7A2718' : '#2D6A4F')}>
-                      {r.returning ? `${r.customer.visits} visitas` : 'Primera visita'}
-                    </span>
-                    <button style={smallBtn(r.completed)} disabled={r.completed || loading === r.id}
-                      onClick={() => !r.completed && markCompleted(r.id)}>
-                      {r.completed ? '✓ Completada' : loading === r.id ? '...' : 'Marcar visitado'}
-                    </button>
-                    <button style={{ padding: '5px 8px', fontSize: 13, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#999', cursor: 'pointer' }}
-                      disabled={loading === r.id}
-                      onClick={() => deleteReservation(r.id, r.customer.name)}>🗑</button>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
+                      <span style={badge(r.returning ? '#FAECE7' : '#EAF3DE', r.returning ? '#7A2718' : '#2D6A4F')}>
+                        {r.returning ? `${r.customer.visits} visitas` : 'Primera visita'}
+                      </span>
+                      {!r.noShow && !r.completed && (
+                        <div style={{ display: 'flex', gap: 5 }}>
+                          <button style={smallBtn(false)} disabled={loading === r.id}
+                            onClick={() => markCompleted(r.id)}>
+                            {loading === r.id ? '...' : 'Marcar visitado'}
+                          </button>
+                          <button
+                            style={{ padding: '5px 10px', fontSize: 10, fontWeight: 700, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#888', cursor: 'pointer', letterSpacing: '0.05em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}
+                            disabled={loading === r.id}
+                            onClick={() => markNoShow(r.id)}>
+                            No asistió
+                          </button>
+                        </div>
+                      )}
+                      {r.completed && !r.noShow && (
+                        <span style={badge('#EAF3DE', '#2D6A4F')}>✓ Completada</span>
+                      )}
+                      <button style={{ padding: '5px 8px', fontSize: 13, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#999', cursor: 'pointer' }}
+                        disabled={loading === r.id}
+                        onClick={() => deleteReservation(r.id, r.customer.name)}>🗑</button>
+                    </div>
                   </div>
                 )
               })
@@ -381,10 +429,14 @@ export default function ReservasAdminTable({
               : filteredCustomers.map(c => {
                 const initials = c.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
                 return (
-                  <div key={c.id} style={{ ...card, display: 'grid', gridTemplateColumns: '42px 1fr auto', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 3, background: RED, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CREAM, fontWeight: 700, fontSize: 14 }}>{initials}</div>
+                  <div key={c.id} style={{ ...card, display: 'grid', gridTemplateColumns: '42px 1fr auto', alignItems: 'center', gap: 12, borderLeft: c.blacklisted ? `3px solid ${RED}` : '1.5px solid #D8DAC8' }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 3, background: c.blacklisted ? '#888' : RED, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CREAM, fontWeight: 700, fontSize: 14 }}>{initials}</div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700 }}>{c.name}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {c.name}
+                        {c.blacklisted && <span style={badge('#FCEBEB', RED)}>Lista negra</span>}
+                        {!c.blacklisted && c.noShowCount > 0 && <span style={badge('#FFF8F0', '#A06030')}>{c.noShowCount} inasistencia{c.noShowCount !== 1 ? 's' : ''}</span>}
+                      </div>
                       <div style={{ fontSize: 12, color: '#888' }}>{c.phone}{c.birthDate ? ` · Nació: ${formatDateShort(c.birthDate.split('T')[0])}` : ''}</div>
                       <div style={{ fontSize: 12, color: '#888' }}>Primera: {c.firstVisit ? formatDateShort(c.firstVisit.split('T')[0]) : '—'} · Última: {c.lastVisit ? formatDateShort(c.lastVisit.split('T')[0]) : '—'}</div>
                     </div>
@@ -401,14 +453,13 @@ export default function ReservasAdminTable({
         {/* ── TAB: Feedback ── */}
         {tab === 'feedback' && (
           <>
-            {/* Pendientes de envío manual */}
             <div style={{ fontSize: 11, fontWeight: 700, color: DARK, marginBottom: 10, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Pendientes de envío ({feedbackPending.length})
+              Pendientes de envío ({feedbackPendingFiltered.length})
             </div>
 
-            {feedbackPending.length === 0
+            {feedbackPendingFiltered.length === 0
               ? <div style={{ textAlign: 'center', padding: '16px 0', color: '#888', fontSize: 13, marginBottom: 24 }}>No hay visitas completadas pendientes.</div>
-              : feedbackPending.map(r => (
+              : feedbackPendingFiltered.map(r => (
                 <div key={r.id} style={{ ...card, display: 'grid', gridTemplateColumns: '60px 1fr auto', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: RED }}>{r.time}</div>
                   <div>
@@ -422,7 +473,6 @@ export default function ReservasAdminTable({
               ))
             }
 
-            {/* Feedbacks recibidos */}
             <div style={{ borderTop: '2px solid #D8DAC8', paddingTop: 16, marginTop: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: DARK, marginBottom: 12, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                 Opiniones recibidas ({feedbacks.length})
