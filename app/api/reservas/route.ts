@@ -67,6 +67,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 })
     }
 
+    // Verificar si el cliente está en lista negra
+    const existingCustomer = await prisma.customer.findUnique({
+      where: { phone: telefono },
+      select: { blacklisted: true },
+    })
+    if (existingCustomer?.blacklisted) {
+      return NextResponse.json(
+        { error: 'No es posible realizar la reserva en este momento. Contactá al local para más información.' },
+        { status: 403 }
+      )
+    }
+
     const reservationDate = new Date(date + 'T00:00:00.000Z')
     const dayStart = new Date(date + 'T00:00:00.000Z')
     const dayEnd = new Date(date + 'T23:59:59.999Z')
