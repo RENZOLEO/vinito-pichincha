@@ -244,7 +244,7 @@ export default function ReservasClient() {
 
               {tuesdayMsg && (
                 <div style={{ background: '#FFF8F0', color: DARK, padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13, fontWeight: 600, borderLeft: `3px solid ${RED}` }}>
-                  Los lunes y martes el local permanece cerrado. Por favor elegí otro día.
+                  Los martes el local permanece cerrado. Por favor elegí otro día.
                 </div>
               )}
 
@@ -492,7 +492,7 @@ export default function ReservasClient() {
               </div>
 
               {form.email && (
-                <div style={{ background: '#EAF3DE', color: '#2D6A4F', borderRadius: 8, padding: '10px 14px', maxWidth: 360, margin: '0 auto 12px', fontSize: 12, fontWeight: 600, textAlign: 'left' }}>
+                <div style={{ background: '#EAF3DE', color: '#2D6A4F', borderRadius: 8, padding: '10px 14px', maxWidth: 360, margin: '0 auto 20px', fontSize: 12, fontWeight: 600, textAlign: 'left' }}>
                   ✓ Te enviamos confirmación a {form.email}
                 </div>
               )}
