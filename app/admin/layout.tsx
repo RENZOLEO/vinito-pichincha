@@ -33,9 +33,23 @@ export default async function AdminLayout({
           <span className="text-vinito-cream/60 text-[10px] uppercase tracking-wide">
             {session?.user?.name} ({role === "ADMIN1" ? "Socio" : role === "ADMIN2" ? "Operativo" : "—"})
           </span>
+          <LogoutButton />
         </div>
       </nav>
       <main className="max-w-5xl mx-auto p-4">{children}</main>
     </div>
+  );
+}
+"use client";
+import { signOut } from "next-auth/react";
+
+function LogoutButton() {
+  return (
+    <button
+      onClick={() => signOut({ callbackUrl: "/admin/login" })}
+      className="text-vinito-cream/60 hover:text-vinito-red text-[10px] uppercase tracking-wide transition-colors"
+    >
+      Salir
+    </button>
   );
 }
