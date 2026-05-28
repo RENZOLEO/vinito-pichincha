@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
-  // Argentina is always UTC-3 (no DST since 2008)
   const argNow = new Date(Date.now() - 3 * 60 * 60 * 1000)
   const localToday = `${argNow.getUTCFullYear()}-${String(argNow.getUTCMonth() + 1).padStart(2, '0')}-${String(argNow.getUTCDate()).padStart(2, '0')}`
   const dateStr = searchParams.get('date') ?? localToday
@@ -29,13 +28,13 @@ export async function GET(req: NextRequest) {
 }
 
 // PATCH /api/admin/reservas
-// Body: { id, completed } | { id, feedbackSent } | { id, guests }
+// Body: { id, completed } | { id, feedbackSent } | { id, guests } | { id, noShow }
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { id, completed, feedbackSent, guests } = body
+  const { id, completed, feedbackSent, guests, noShow } = body
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
   // Edit guest count: reassign tables using global daily capacity
@@ -78,6 +77,40 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true, reservation: updated })
   }
 
+  // Mark no-show: increment noShowCount on customer, blacklist if >= 2
+  if (noShow !== undefined) {
+    const reservation = await prisma.reservation.findUnique({
+      where: { id },
+      select: { customerId: true },
+    })
+    if (!reservation) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    const customer = await prisma.customer.findUnique({
+      where: { id: reservation.customerId },
+      select: { noShowCount: true },
+    })
+    if (!customer) return NextResponse.json({ error: 'Customer not found' }, { status: 404 })
+
+    const newNoShowCount = customer.noShowCount + 1
+    const shouldBlacklist = newNoShowCount >= 2
+
+    await prisma.$transaction([
+      prisma.reservation.update({
+        where: { id },
+        data: { noShow: true },
+      }),
+      prisma.customer.update({
+        where: { id: reservation.customerId },
+        data: {
+          noShowCount: newNoShowCount,
+          ...(shouldBlacklist && { blacklisted: true }),
+        },
+      }),
+    ])
+
+    return NextResponse.json({ ok: true, blacklisted: shouldBlacklist })
+  }
+
   const updated = await prisma.reservation.update({
     where: { id },
     data: {
@@ -102,7 +135,7 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json({ ok: true })
 }
 
-// GET /api/admin/reservas/customers — lista de clientes
+// PUT /api/admin/reservas — lista de clientes
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
