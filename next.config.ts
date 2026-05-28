@@ -17,6 +17,19 @@ const nextConfig: NextConfig = {
       fallback: [],
     };
   },
+  async headers() {
+    return [
+      {
+        source: '/wheelwright/:path*',
+        headers: [
+          {
+            key: 'x-forwarded-host',
+            value: 'vinitorosario.com',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
