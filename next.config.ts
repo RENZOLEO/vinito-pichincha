@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/wheelwright/:path*',
-        destination: 'https://wheelwright.vinitorosario.com/:path*',
+        destination: 'https://vinito-wheelwright-production.up.railway.app/:path*',
         permanent: false,
       },
     ];
