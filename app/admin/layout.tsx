@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth";
-
+import { redirect } from "next/navigation";
 export default async function AdminLayout({
   children,
 }: {
@@ -11,8 +11,8 @@ export default async function AdminLayout({
 
   // Sin sesión = solo renderizar children (el middleware ya redirigió si era necesario)
   if (!session) {
-    return <>{children}</>;
-  }
+  redirect("/admin/login");
+}
 
   return (
     <div className="min-h-screen bg-vinito-cream">
