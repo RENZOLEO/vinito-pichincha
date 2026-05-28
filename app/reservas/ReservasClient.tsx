@@ -244,7 +244,7 @@ export default function ReservasClient() {
 
               {tuesdayMsg && (
                 <div style={{ background: '#FFF8F0', color: DARK, padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13, fontWeight: 600, borderLeft: `3px solid ${RED}` }}>
-                  Los martes el local permanece cerrado. Por favor elegí otro día.
+                  Los lunes y martes el local permanece cerrado. Por favor elegí otro día.
                 </div>
               )}
 
@@ -496,10 +496,6 @@ export default function ReservasClient() {
                   ✓ Te enviamos confirmación a {form.email}
                 </div>
               )}
-
-              <div style={{ background: '#EEF3F7', color: BLUE, borderRadius: 8, padding: '10px 14px', maxWidth: 360, margin: '0 auto 20px', fontSize: 12, fontWeight: 600, textAlign: 'left' }}>
-                Recibirás un WhatsApp confirmando tu reserva.
-              </div>
 
               <button onClick={resetAll}
                 style={{ padding: '10px 24px', background: 'transparent', color: RED, border: '1.5px solid #D8DAC8', borderRadius: 8, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
