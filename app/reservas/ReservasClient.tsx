@@ -33,7 +33,7 @@ export default function ReservasClient() {
     const now = new Date()
     if (now.getHours() < 20) return
     let daysAhead = 1
-    while (new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead).getDay() === 2) {
+    while (new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead).getDay() === 2 || new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead).getDay() === 1) {
       daysAhead++
     }
     const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead)
@@ -244,7 +244,7 @@ export default function ReservasClient() {
 
               {tuesdayMsg && (
                 <div style={{ background: '#FFF8F0', color: DARK, padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: 13, fontWeight: 600, borderLeft: `3px solid ${RED}` }}>
-                  Los martes el local permanece cerrado. Por favor elegí otro día.
+                  Los lunes y martes el local permanece cerrado. Por favor elegí otro día.
                 </div>
               )}
 
@@ -272,7 +272,7 @@ export default function ReservasClient() {
                   const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                   const dt = new Date(calYear, calMonth, day)
                   const isPast = dt < minDate
-                  const isTuesday = dt.getDay() === 2
+                  const isTuesday = dt.getDay() === 2 || dt.getDay() === 1
                   const isDisabled = isPast || isTuesday
                   const isSelected = dateStr === selectedDate
                   const isToday = dt.toDateString() === new Date().toDateString()
