@@ -5,8 +5,10 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const BASE_URL = process.env.NEXTAUTH_URL ?? 'https://vinitorosario.com'
 
 const LOGO_HEADER = `
-  <div style="background: #202020; padding: 20px 24px; text-align: center;">
-    <img src="https://vinitorosario.com/logo-vinito-pichincha.png" alt="VINITO Pichincha" style="height: 52px; width: auto;" />
+  <div style="background: #ECEEE1; padding: 28px 24px; text-align: center; border-bottom: 1.5px solid #D8DAC8;">
+    <div style="font-size: 42px; font-weight: 900; color: #C54329; letter-spacing: 6px; line-height: 1; font-family: sans-serif;">VINITO</div>
+    <div style="font-size: 20px; color: #6F889A; letter-spacing: 4px; margin-top: 2px; font-style: italic; font-family: sans-serif;">Pichincha</div>
+    <div style="font-size: 10px; color: #888; letter-spacing: 3px; text-transform: uppercase; margin-top: 10px; font-family: sans-serif;">Jujuy 2248 · Pichincha · Rosario</div>
   </div>
 `
 
