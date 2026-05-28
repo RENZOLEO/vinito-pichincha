@@ -145,6 +145,8 @@ model Customer {
   visits       Int           @default(0)
   firstVisit   DateTime?
   lastVisit    DateTime?
+  noShowCount  Int           @default(0)
+  blacklisted  Boolean       @default(false)
   createdAt    DateTime      @default(now())
   reservations Reservation[]
 
@@ -160,6 +162,7 @@ model Reservation {
   floor        String
   returning    Boolean   @default(false)
   completed    Boolean   @default(false)
+  noShow       Boolean   @default(false)
   feedbackSent Boolean   @default(false)
   cancelToken  String?   @unique
   customerId   Int
@@ -170,6 +173,7 @@ model Reservation {
   @@index([date])
   @@index([customerId])
   @@index([completed])
+  @@index([noShow])
   @@index([cancelToken])
 }
 
