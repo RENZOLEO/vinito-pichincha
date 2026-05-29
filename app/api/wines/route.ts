@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const varietal = params.get("varietal");
   const search = params.get("search");
   const page = Math.max(1, parseInt(params.get("page") ?? "1"));
-  const limit = Math.min(60, Math.max(1, parseInt(params.get("limit") ?? "30")));
+  const limit = Math.min(500, Math.max(1, parseInt(params.get("limit") ?? "500")));
 
   const where: Prisma.WineWhereInput = { available: true };
 
