@@ -25,7 +25,6 @@ export default async function CartaPage({ searchParams }: { searchParams: Search
         price: true, fichaUrl: true,
       },
       orderBy: { name: "asc" },
-      take: 30,
     }),
     prisma.wine.count({ where: { available: true } }),
     prisma.wine.findMany({
