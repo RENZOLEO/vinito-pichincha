@@ -34,15 +34,26 @@ export function CartaClient({ initialWines, initialTotal, zones, varietals, init
   const [loading, setLoading] = useState(false);
 
   const availableZones = useMemo(
-    () => [...new Set(zones.filter((z) => z.category === category).map((z) => z.zone))].sort(),
+    () =>
+      [
+        ...new Set(
+          zones
+            .filter((z) => category === "TODOS" || z.category === category)
+            .map((z) => z.zone)
+        ),
+      ].sort(),
     [zones, category]
   );
 
   const availableVarietals = useMemo(
     () =>
-      [...new Set(
-        varietals.filter((v) => v.category === category && v.varietal).map((v) => v.varietal!)
-      )].sort(),
+      [
+        ...new Set(
+          varietals
+            .filter((v) => (category === "TODOS" || v.category === category) && v.varietal)
+            .map((v) => v.varietal!)
+        ),
+      ].sort(),
     [varietals, category]
   );
 
