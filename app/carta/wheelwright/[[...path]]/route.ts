@@ -45,7 +45,6 @@ async function proxy(req: NextRequest, pathSegments?: string[]) {
       .replaceAll(WHEELWRIGHT_BASE, '')
       .replaceAll('href="/', 'href="/carta/wheelwright/')
       .replaceAll('action="/', 'action="/carta/wheelwright/')
-      .replaceAll('src="/', 'src="/carta/wheelwright/')
 
     const resHeaders = new Headers(upstreamRes.headers)
     resHeaders.delete('content-encoding')
