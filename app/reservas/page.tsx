@@ -46,15 +46,15 @@ export default function ReservasPage() {
             <div style={{ flex: 1, height: 1, background: 'rgba(32,32,32,0.12)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Wheelwright</div>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Wheelwright 1487</div>
-            </a>
-            <Link href="/reservas/pichincha" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Pichincha</div>
-              <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Jujuy 2248</div>
-            </Link>
-          </div>
+  <Link href="/reservas/wheelwright" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
+    <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Wheelwright</div>
+    <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Wheelwright 1487</div>
+  </Link>
+  <Link href="/reservas/pichincha" style={{ display: 'block', padding: '26px 16px', textDecoration: 'none', background: RED, border: `1.5px solid ${RED}`, borderRadius: 8 }}>
+    <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 16, color: CREAM, marginBottom: 5 }}>Vinito Pichincha</div>
+    <div style={{ fontFamily: "'Zawi', sans-serif", fontSize: 12, color: 'rgba(236,238,225,0.65)' }}>Jujuy 2248</div>
+  </Link>
+</div>
         </div>
       </div>
     </>
