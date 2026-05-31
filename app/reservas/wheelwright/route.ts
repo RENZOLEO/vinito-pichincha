@@ -11,8 +11,9 @@ export async function POST(req: NextRequest) {
 }
 
 async function proxy(req: NextRequest) {
+  const subpath = req.nextUrl.pathname.replace('/reservas/wheelwright', '') || ''
   const search = req.nextUrl.search ?? ''
-  const targetUrl = `${WHEELWRIGHT_BASE}/reservas/wheelwright${search}`
+  const targetUrl = `${WHEELWRIGHT_BASE}/reservas/wheelwright${subpath}${search}`
 
   const headers = new Headers(req.headers)
   headers.set('x-forwarded-host', req.nextUrl.host)
@@ -27,16 +28,12 @@ async function proxy(req: NextRequest) {
     redirect: 'manual',
   })
 
-  // Reescribir redirects
   if (upstreamRes.status >= 300 && upstreamRes.status < 400) {
     const location = upstreamRes.headers.get('location') ?? '/'
-    const rewritten = location
-      .replace(WHEELWRIGHT_BASE, '/reservas/wheelwright')
-      .replace(/^\/reservas\/wheelwright\/reservas\/wheelwright/, '/reservas/wheelwright')
+    const rewritten = location.replace(WHEELWRIGHT_BASE, '')
     return NextResponse.redirect(new URL(rewritten, req.nextUrl.origin))
   }
 
-  // Reescribir HTML
   const contentType = upstreamRes.headers.get('content-type') ?? ''
   if (contentType.includes('text/html')) {
     let html = await upstreamRes.text()
@@ -48,10 +45,7 @@ async function proxy(req: NextRequest) {
 
     const resHeaders = new Headers(upstreamRes.headers)
     resHeaders.delete('content-encoding')
-    return new NextResponse(html, {
-      status: upstreamRes.status,
-      headers: resHeaders,
-    })
+    return new NextResponse(html, { status: upstreamRes.status, headers: resHeaders })
   }
 
   return new NextResponse(upstreamRes.body, {
