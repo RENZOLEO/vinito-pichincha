@@ -32,8 +32,16 @@ async function proxy(req: NextRequest, pathSegments?: string[]) {
     body: req.method !== 'GET' && req.method !== 'HEAD' ? req.body : undefined,
     // @ts-ignore — necesario para streaming en Node
     duplex: 'half',
-    redirect: 'follow',
+    redirect: 'manual',
   })
+// Reescribir redirects para mantener la URL en vinitorosario.com
+if (upstreamRes.status >= 300 && upstreamRes.status < 400) {
+  const location = upstreamRes.headers.get('location') ?? '/'
+  const rewritten = location
+    .replace(WHEELWRIGHT_BASE, '/reservas/wheelwright')
+    .replace(/^\//, '/reservas/wheelwright/')
+  return NextResponse.redirect(new URL(rewritten, req.nextUrl.origin))
+}
 
   // Reescribir URLs absolutas en el HTML para que apunten a /reservas/wheelwright
   const contentType = upstreamRes.headers.get('content-type') ?? ''
