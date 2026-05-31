@@ -53,6 +53,9 @@ export async function sendConfirmationEmail({
               <span style="color: #888;">Dirección</span><span style="font-weight: 700; color: #202020;">Jujuy 2248, Rosario</span>
             </div>
           </div>
+<p style="color: #888; font-size: 12px; line-height: 1.6; margin: 0 0 20px; text-align: center;">
+  Recordá que tu reserva tiene una tolerancia de 15 minutos. Pasado ese tiempo, la mesa quedará disponible para otros comensales.
+</p>
           <div style="text-align: center; margin-bottom: 24px;">
             <a href="${cancelUrl}" style="display: inline-block; padding: 12px 24px; background: transparent; border: 1.5px solid #C54329; color: #C54329; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 600;">
               Cancelar mi reserva
