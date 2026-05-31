@@ -2,16 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const WHEELWRIGHT_BASE = process.env.WHEELWRIGHT_URL ?? 'https://wheelwright.vinitorosario.com'
 
-export async function GET(req: NextRequest) {
-  return proxy(req)
+type Context = { params: Promise<{ path?: string[] }> }
+
+export async function GET(req: NextRequest, ctx: Context) {
+  const { path } = await ctx.params
+  return proxy(req, path)
 }
 
-export async function POST(req: NextRequest) {
-  return proxy(req)
+export async function POST(req: NextRequest, ctx: Context) {
+  const { path } = await ctx.params
+  return proxy(req, path)
 }
 
-async function proxy(req: NextRequest) {
-  const subpath = req.nextUrl.pathname.replace('/reservas/wheelwright', '') || ''
+async function proxy(req: NextRequest, pathSegments?: string[]) {
+  const subpath = pathSegments?.length ? '/' + pathSegments.join('/') : ''
   const search = req.nextUrl.search ?? ''
   const targetUrl = `${WHEELWRIGHT_BASE}/reservas/wheelwright${subpath}${search}`
 
