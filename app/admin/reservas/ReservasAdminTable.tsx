@@ -84,6 +84,11 @@ export default function ReservasAdminTable({
   const usedTables = new Set(reservations.flatMap(r => JSON.parse(r.tables) as number[])).size
   const freeTables = 18 - usedTables
 
+  const confirmedCount = reservations.filter(r => !r.completed && !r.noShow).length
+  const attendedCount = reservations.filter(r => r.completed && !r.noShow).length
+  const noShowCount = reservations.filter(r => r.noShow).length
+  const canceledCount = 0 // placeholder — no hay cancelaciones en el modelo actual
+
   const markCompleted = async (id: number) => {
     setLoading(id)
     await fetch('/api/admin/reservas', {
@@ -257,15 +262,28 @@ export default function ReservasAdminTable({
               <button onClick={() => changeDay(1)} style={{ width: 30, height: 30, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', cursor: 'pointer', color: RED, fontSize: 14 }}>→</button>
             </div>
 
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 8 }}>
+              {[
+                [reservations.length, 'Reservas', RED],
+                [totalPax, 'Personas', RED],
+                [usedTables, 'Mesas ocup.', RED],
+                [freeTables, 'Mesas libres', '#2D6A4F'],
+              ].map(([n, l, col]) => (
+                <div key={l as string} style={{ background: CREAM, borderRadius: 3, padding: '11px 13px', textAlign: 'center', borderLeft: `3px solid ${col as string}` }}>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: col as string, lineHeight: 1 }}>{n}</div>
+                  <div style={{ fontSize: 10, color: '#888', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{l}</div>
+                </div>
+              ))}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
               {[
-                [reservations.length, 'Reservas'],
-                [totalPax, 'Personas'],
-                [usedTables, 'Mesas ocup.'],
-                [freeTables, 'Mesas libres'],
-              ].map(([n, l]) => (
-                <div key={l as string} style={{ background: CREAM, borderRadius: 3, padding: '11px 13px', textAlign: 'center', borderLeft: `3px solid ${RED}` }}>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: RED, lineHeight: 1 }}>{n}</div>
+                [confirmedCount, 'Confirmadas', BLUE],
+                [attendedCount, 'Asistieron', '#2D6A4F'],
+                [noShowCount, 'No asistió', '#888'],
+                [canceledCount, 'Canceladas', '#A06030'],
+              ].map(([n, l, col]) => (
+                <div key={l as string} style={{ background: '#fff', border: '1.5px solid #D8DAC8', borderRadius: 3, padding: '9px 13px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: col as string, lineHeight: 1 }}>{n}</div>
                   <div style={{ fontSize: 10, color: '#888', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{l}</div>
                 </div>
               ))}
@@ -422,17 +440,30 @@ export default function ReservasAdminTable({
         {/* ── TAB: Clientes ── */}
         {tab === 'clientes' && (
           <>
-            <input style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D8DAC8', borderRadius: 4, marginBottom: 14, fontFamily: 'inherit', fontSize: 14, outline: 'none' }}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
+              {[
+                [initialCustomers.length, 'Total clientes', RED],
+                [initialCustomers.filter(c => c.visits === 1).length, 'Primera visita', '#2D6A4F'],
+                [initialCustomers.filter(c => c.visits > 1).length, 'Recurrentes', BLUE],
+              ].map(([n, l, col]) => (
+                <div key={l as string} style={{ background: CREAM, borderRadius: 3, padding: '10px 13px', textAlign: 'center', borderLeft: `3px solid ${col as string}` }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: col as string, lineHeight: 1 }}>{n}</div>
+                  <div style={{ fontSize: 10, color: '#888', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{l}</div>
+                </div>
+              ))}
+            </div>
+            <input style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D8DAC8', borderRadius: 4, marginBottom: 14, fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
               placeholder="Buscar por nombre o teléfono..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
             {filteredCustomers.length === 0
               ? <div style={{ textAlign: 'center', padding: 28, color: '#888' }}>Sin resultados</div>
               : filteredCustomers.map(c => {
                 const initials = c.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
+                const isFirst = c.visits <= 1
                 return (
-                  <div key={c.id} style={{ ...card, display: 'grid', gridTemplateColumns: '42px 1fr auto', alignItems: 'center', gap: 12, borderLeft: c.blacklisted ? `3px solid ${RED}` : '1.5px solid #D8DAC8' }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 3, background: c.blacklisted ? '#888' : RED, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CREAM, fontWeight: 700, fontSize: 14 }}>{initials}</div>
+                  <div key={c.id} style={{ ...card, display: 'grid', gridTemplateColumns: '42px 1fr auto', alignItems: 'center', gap: 12, borderLeft: c.blacklisted ? `3px solid ${RED}` : isFirst ? `3px solid #2D6A4F` : '1.5px solid #D8DAC8' }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 3, background: c.blacklisted ? '#888' : isFirst ? '#2D6A4F' : RED, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CREAM, fontWeight: 700, fontSize: 14 }}>{initials}</div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         {c.name}
                         {c.blacklisted && <span style={badge('#FCEBEB', RED)}>Lista negra</span>}
                         {!c.blacklisted && c.noShowCount > 0 && <span style={badge('#FFF8F0', '#A06030')}>{c.noShowCount} inasistencia{c.noShowCount !== 1 ? 's' : ''}</span>}
@@ -440,8 +471,8 @@ export default function ReservasAdminTable({
                       <div style={{ fontSize: 12, color: '#888' }}>{c.phone}{c.birthDate ? ` · Nació: ${formatDateShort(c.birthDate.split('T')[0])}` : ''}</div>
                       <div style={{ fontSize: 12, color: '#888' }}>Primera: {c.firstVisit ? formatDateShort(c.firstVisit.split('T')[0]) : '—'} · Última: {c.lastVisit ? formatDateShort(c.lastVisit.split('T')[0]) : '—'}</div>
                     </div>
-                    <span style={{ fontSize: 11, padding: '4px 11px', borderRadius: 2, background: CREAM, color: RED, fontWeight: 700, whiteSpace: 'nowrap' }}>
-                      {c.visits} visita{c.visits !== 1 ? 's' : ''}
+                    <span style={{ fontSize: 11, padding: '4px 11px', borderRadius: 2, background: isFirst ? '#EAF3DE' : CREAM, color: isFirst ? '#2D6A4F' : RED, fontWeight: 700, whiteSpace: 'nowrap', border: `1.5px solid ${isFirst ? '#C8E6D4' : '#D8DAC8'}` }}>
+                      {isFirst ? '1ª visita' : `${c.visits} visitas`}
                     </span>
                   </div>
                 )
@@ -482,26 +513,49 @@ export default function ReservasAdminTable({
                 ? <div style={{ textAlign: 'center', padding: 20, color: '#888', fontSize: 13 }}>Cargando...</div>
                 : feedbacks.length === 0
                   ? <div style={{ textAlign: 'center', padding: 20, color: '#888', fontSize: 13 }}>Todavía no hay opiniones recibidas.</div>
-                  : feedbacks.map(f => (
-                    <div key={f.id} style={{ ...card, borderLeft: `3px solid ${RED}` }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 700 }}>{f.customerName}</div>
-                          <div style={{ fontSize: 12, color: '#888' }}>{f.reservationDate ? formatDateShort(f.reservationDate.split('T')[0]) : '—'}</div>
-                        </div>
-                        <div style={{ display: 'flex', gap: 2 }}>
-                          {[1, 2, 3, 4, 5].map(n => (
-                            <span key={n} style={{ fontSize: 16, color: f.rating && f.rating >= n ? RED : '#D8DAC8' }}>★</span>
+                  : (() => {
+                      const rated = feedbacks.filter(f => f.rating != null)
+                      const avgRating = rated.length > 0 ? rated.reduce((s, f) => s + (f.rating ?? 0), 0) / rated.length : 0
+                      const fiveStars = feedbacks.filter(f => f.rating === 5).length
+                      const lowStars = feedbacks.filter(f => f.rating != null && f.rating <= 3).length
+                      return (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+                            {[
+                              [feedbacks.length, 'Total', RED],
+                              [`★ ${avgRating.toFixed(1)}`, 'Promedio', RED],
+                              [fiveStars, '5 estrellas', '#2D6A4F'],
+                              [lowStars, '≤ 3 estrellas', '#A06030'],
+                            ].map(([n, l, col]) => (
+                              <div key={l as string} style={{ background: CREAM, borderRadius: 3, padding: '9px 13px', textAlign: 'center', borderLeft: `3px solid ${col as string}` }}>
+                                <div style={{ fontSize: 20, fontWeight: 900, color: col as string, lineHeight: 1 }}>{n}</div>
+                                <div style={{ fontSize: 10, color: '#888', marginTop: 3, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{l}</div>
+                              </div>
+                            ))}
+                          </div>
+                          {feedbacks.map(f => (
+                            <div key={f.id} style={{ ...card, borderLeft: `3px solid ${f.rating != null && f.rating <= 3 ? '#A06030' : RED}` }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                                <div>
+                                  <div style={{ fontSize: 14, fontWeight: 700 }}>{f.customerName}</div>
+                                  <div style={{ fontSize: 12, color: '#888' }}>{f.reservationDate ? formatDateShort(f.reservationDate.split('T')[0]) : '—'}</div>
+                                </div>
+                                <div style={{ display: 'flex', gap: 2 }}>
+                                  {[1, 2, 3, 4, 5].map(n => (
+                                    <span key={n} style={{ fontSize: 16, color: f.rating && f.rating >= n ? RED : '#D8DAC8' }}>★</span>
+                                  ))}
+                                </div>
+                              </div>
+                              {f.comment && (
+                                <div style={{ fontSize: 13, color: '#555', fontStyle: 'italic', lineHeight: 1.6, borderTop: '1px solid #EDE5DC', paddingTop: 8, marginTop: 4 }}>
+                                  "{f.comment}"
+                                </div>
+                              )}
+                            </div>
                           ))}
-                        </div>
-                      </div>
-                      {f.comment && (
-                        <div style={{ fontSize: 13, color: '#555', fontStyle: 'italic', lineHeight: 1.6, borderTop: '1px solid #EDE5DC', paddingTop: 8, marginTop: 4 }}>
-                          "{f.comment}"
-                        </div>
-                      )}
-                    </div>
-                  ))
+                        </>
+                      )
+                    })()
               }
             </div>
           </>
