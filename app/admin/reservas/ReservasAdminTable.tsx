@@ -17,6 +17,12 @@ type Reservation = {
 type TableBlock = {
   id: number; date: string; time: string | null; tables: string; reason: string | null
 }
+type WaitingEntry = {
+  id: number; date: string; guests: number
+  nombre: string; apellido: string; telefono: string
+  email: string | null; notified: boolean; createdAt: string
+}
+
 type FeedbackItem = {
   id: number; reservationId: number; customerName: string
   reservationDate: string; rating: number | null; comment: string | null; createdAt: string
@@ -48,12 +54,14 @@ export default function ReservasAdminTable({
   currentDate: string
 }) {
   const router = useRouter()
-  const [tab, setTab] = useState<'reservas' | 'clientes' | 'feedback'>('reservas')
+  const [tab, setTab] = useState<'reservas' | 'clientes' | 'feedback' | 'espera'>('reservas')
   const [reservations, setReservations] = useState(initialReservations)
   const [feedbackPending, setFeedbackPending] = useState(initialFeedbackPending)
   const [blocks, setBlocks] = useState(initialBlocks)
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([])
   const [feedbacksLoaded, setFeedbacksLoaded] = useState(false)
+  const [waitingList, setWaitingList] = useState<WaitingEntry[]>([])
+  const [waitingLoaded, setWaitingLoaded] = useState(false)
   const [searchQ, setSearchQ] = useState('')
   const [loading, setLoading] = useState<number | null>(null)
   const [editingGuests, setEditingGuests] = useState<{ id: number; guests: number } | null>(null)
@@ -168,6 +176,33 @@ export default function ReservasAdminTable({
     setFeedbacksLoaded(true)
   }
 
+  const loadWaiting = async () => {
+    if (waitingLoaded) return
+    const res = await fetch('/api/admin/waiting-list')
+    const data = await res.json()
+    setWaitingList(data.list ?? [])
+    setWaitingLoaded(true)
+  }
+
+  const markWaitingNotified = async (id: number) => {
+    setLoading(id)
+    await fetch('/api/admin/waiting-list', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, notified: true }),
+    })
+    setWaitingList(wl => wl.map(e => e.id === id ? { ...e, notified: true } : e))
+    setLoading(null)
+  }
+
+  const deleteWaiting = async (id: number) => {
+    if (!confirm('¿Eliminar esta entrada de lista de espera?')) return
+    setLoading(id)
+    await fetch(`/api/admin/waiting-list?id=${id}`, { method: 'DELETE' })
+    setWaitingList(wl => wl.filter(e => e.id !== id))
+    setLoading(null)
+  }
+
   const toggleBlockTable = (t: number) => {
     setBlockTables(ts => ts.includes(t) ? ts.filter(x => x !== t) : [...ts, t])
   }
@@ -237,8 +272,8 @@ export default function ReservasAdminTable({
       </div>
 
       <div style={{ display: 'flex', borderBottom: '2px solid #D8DAC8', background: '#fff' }}>
-        {(['reservas', 'clientes', 'feedback'] as const).map(t => (
-          <button key={t} onClick={() => { setTab(t); if (t === 'feedback') loadFeedbacks() }}
+        {(['reservas', 'clientes', 'feedback', 'espera'] as const).map(t => (
+          <button key={t} onClick={() => { setTab(t); if (t === 'feedback') loadFeedbacks(); if (t === 'espera') loadWaiting() }}
             style={{
               padding: '11px 18px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
               color: tab === t ? RED : '#888',
@@ -246,7 +281,11 @@ export default function ReservasAdminTable({
               borderBottomStyle: 'solid', borderBottomColor: tab === t ? RED : 'transparent',
               letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: -2,
             }}>
-            {t === 'feedback' && feedbackPendingFiltered.length > 0 ? `${t} (${feedbackPendingFiltered.length})` : t}
+            {t === 'feedback' && feedbackPendingFiltered.length > 0
+              ? `feedback (${feedbackPendingFiltered.length})`
+              : t === 'espera'
+              ? 'Lista de espera'
+              : t}
           </button>
         ))}
       </div>
@@ -560,6 +599,61 @@ export default function ReservasAdminTable({
             </div>
           </>
         )}
+
+        {/* ── TAB: Lista de espera ── */}
+        {tab === 'espera' && (
+          <>
+            {!waitingLoaded
+              ? <div style={{ textAlign: 'center', padding: 28, color: '#888' }}>Cargando...</div>
+              : waitingList.length === 0
+              ? <div style={{ textAlign: 'center', padding: 28, color: '#888', fontSize: 14 }}>No hay entradas en lista de espera</div>
+              : waitingList.map(e => {
+                const [y, m, d] = e.date.split('T')[0].split('-').map(Number)
+                const dateStr = `${d} de ${MONTHS[m - 1]} ${y}`
+                return (
+                  <div key={e.id} style={{
+                    ...card,
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    alignItems: 'center',
+                    gap: 12,
+                    borderLeft: e.notified ? `3px solid #2D6A4F` : `3px solid ${RED}`,
+                    opacity: e.notified ? 0.65 : 1,
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {e.nombre} {e.apellido}
+                        {e.notified && <span style={badge('#EAF3DE', '#2D6A4F')}>Notificado</span>}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                        {e.telefono}{e.email ? ` · ${e.email}` : ''}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 1 }}>
+                        {dateStr} · {e.guests} persona{e.guests !== 1 ? 's' : ''}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#bbb', marginTop: 2 }}>
+                        Anotado: {new Date(e.createdAt).toLocaleDateString('es-AR')}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
+                      {!e.notified && (
+                        <button style={smallBtn(false)} disabled={loading === e.id}
+                          onClick={() => markWaitingNotified(e.id)}>
+                          {loading === e.id ? '...' : '✓ Notificado'}
+                        </button>
+                      )}
+                      <button
+                        style={{ padding: '5px 8px', fontSize: 13, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#999', cursor: 'pointer' }}
+                        disabled={loading === e.id}
+                        onClick={() => deleteWaiting(e.id)}>🗑</button>
+                    </div>
+                  </div>
+                )
+              })
+            }
+          </>
+        )}
+
       </div>
     </div>
   )
