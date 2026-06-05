@@ -62,6 +62,7 @@ export default function ReservasAdminTable({
   const [feedbacksLoaded, setFeedbacksLoaded] = useState(false)
   const [waitingList, setWaitingList] = useState<WaitingEntry[]>([])
   const [waitingLoaded, setWaitingLoaded] = useState(false)
+  const [waitingDateFilter, setWaitingDateFilter] = useState('')
   const [searchQ, setSearchQ] = useState('')
   const [loading, setLoading] = useState<number | null>(null)
   const [editingGuests, setEditingGuests] = useState<{ id: number; guests: number } | null>(null)
@@ -95,7 +96,7 @@ export default function ReservasAdminTable({
   const confirmedCount = reservations.filter(r => !r.completed && !r.noShow).length
   const attendedCount = reservations.filter(r => r.completed && !r.noShow).length
   const noShowCount = reservations.filter(r => r.noShow).length
-  const canceledCount = 0 // placeholder — no hay cancelaciones en el modelo actual
+  const canceledCount = 0
 
   const markCompleted = async (id: number) => {
     setLoading(id)
@@ -258,8 +259,11 @@ export default function ReservasAdminTable({
     !searchQ || c.name.toLowerCase().includes(searchQ.toLowerCase()) || c.phone.includes(searchQ)
   )
 
-  // Feedback pendiente solo de reservas asistidas (no noShow)
   const feedbackPendingFiltered = feedbackPending.filter(r => !r.noShow)
+
+  const filteredWaiting = waitingDateFilter
+    ? waitingList.filter(e => e.date.startsWith(waitingDateFilter))
+    : waitingList
 
   return (
     <div style={{ fontFamily: "'Raleway', sans-serif", color: DARK }}>
@@ -603,13 +607,33 @@ export default function ReservasAdminTable({
         {/* ── TAB: Lista de espera ── */}
         {tab === 'espera' && (
           <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <input
+                type="date"
+                value={waitingDateFilter}
+                onChange={e => setWaitingDateFilter(e.target.value)}
+                style={{ padding: '7px 10px', border: '1.5px solid #D8DAC8', borderRadius: 3, fontFamily: 'inherit', fontSize: 13, outline: 'none', color: DARK }}
+              />
+              {waitingDateFilter && (
+                <button onClick={() => setWaitingDateFilter('')}
+                  style={{ padding: '6px 12px', fontSize: 11, fontWeight: 700, border: '1.5px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#888', cursor: 'pointer', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                  Ver todas
+                </button>
+              )}
+              {waitingLoaded && (
+                <span style={{ fontSize: 12, color: '#888' }}>
+                  {filteredWaiting.length} entrada{filteredWaiting.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+
             {!waitingLoaded
               ? <div style={{ textAlign: 'center', padding: 28, color: '#888' }}>Cargando...</div>
-              : waitingList.length === 0
-              ? <div style={{ textAlign: 'center', padding: 28, color: '#888', fontSize: 14 }}>No hay entradas en lista de espera</div>
-              : waitingList.map(e => {
-                const [y, m, d] = e.date.split('T')[0].split('-').map(Number)
-                const dateStr = `${d} de ${MONTHS[m - 1]} ${y}`
+              : filteredWaiting.length === 0
+              ? <div style={{ textAlign: 'center', padding: 28, color: '#888', fontSize: 14 }}>{waitingDateFilter ? 'No hay entradas para esta fecha' : 'No hay entradas en lista de espera'}</div>
+              : filteredWaiting.map(e => {
+                const [ey, em, ed] = e.date.split('T')[0].split('-').map(Number)
+                const dateStr = `${ed} de ${MONTHS[em - 1]} ${ey}`
                 return (
                   <div key={e.id} style={{
                     ...card,
