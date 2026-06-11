@@ -22,6 +22,7 @@ export default async function AdminLayout({
         <div className="flex gap-4 text-xs">
           <a href="/admin/wines" className="hover:text-vinito-red transition-colors">Vinos</a>
           <a href="/admin/dishes" className="hover:text-vinito-red transition-colors">Platos</a>
+          <a href="/admin/drinks" className="hover:text-vinito-red transition-colors">Tragos</a>
           <a href="/admin/reservas" className="hover:text-vinito-red transition-colors">Reservas</a>
           {isAdmin1 && (
             <>
