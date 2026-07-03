@@ -45,7 +45,8 @@ export async function GET(req: NextRequest) {
   ])
 
   const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
-  const slots = TIME_SLOTS.map((time) => {
+  const timeSlots = dateStr === '2026-07-03' ? [...TIME_SLOTS, '23:00'] : [...TIME_SLOTS]
+  const slots = timeSlots.map((time) => {
     const combo = findBestCombo(guests, usedTables)
     return {
       time,
@@ -189,4 +190,4 @@ export async function POST(req: NextRequest) {
     console.error('Error creating reservation:', err)
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
-}
+            }
