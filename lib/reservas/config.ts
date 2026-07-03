@@ -18,7 +18,7 @@ export function formatDateShort(date: string): string {
   return `${d}/${m}/${y}`
 }
 
-export const TIME_SLOTS = ['20:00', '20:30', '20:45', '21:00'] as const
+export const TIME_SLOTS = ['20:00', '20:30', '20:45', '21:00', '21:30', '22:00'] as const
 export type TimeSlot = typeof TIME_SLOTS[number]
 
 export const TOTAL_TABLES = 18
