@@ -25,6 +25,7 @@ enum DrinkCategory {
   CLASICO
   AUTOR
   WHISKY
+  SOUR
   CERVEZA
   SIN_ALCOHOL
   CAFETERIA
