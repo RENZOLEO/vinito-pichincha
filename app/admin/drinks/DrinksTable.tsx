@@ -5,7 +5,7 @@ import { DrinkToggle } from "@/components/admin/DrinkToggle";
 type Drink = {
   id: number;
   name: string;
-  category: "VERMUTH" | "CLASICO" | "AUTOR" | "WHISKY" | "CERVEZA" | "SIN_ALCOHOL" | "CAFETERIA";
+  category: "VERMUTH" | "CLASICO" | "AUTOR" | "WHISKY" | "SOUR" | "CERVEZA" | "SIN_ALCOHOL" | "CAFETERIA";
   description: string | null;
   price: number | null;
   available: boolean;
@@ -19,6 +19,7 @@ const CATEGORY_LABELS: Record<Drink["category"], string> = {
   CLASICO: "Clásico",
   AUTOR: "Autor",
   WHISKY: "Whisky",
+  SOUR: "Sours",
   CERVEZA: "Cerveza",
   SIN_ALCOHOL: "Sin alcohol",
   CAFETERIA: "Cafetería",
