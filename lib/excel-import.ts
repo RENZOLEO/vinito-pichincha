@@ -295,7 +295,7 @@ export function parseExcelAll(buffer: ArrayBuffer): FullImportResult {
   const workbook = XLSX.read(buffer, { type: "array" });
 
   const wineSheet = findSheet(workbook, ["vino"]);
-  const drinkSheet = findSheet(workbook, ["trago"]);
+  const drinkSheet = findSheet(workbook, ["trago", "bebida"]);
   const dishSheet = findSheet(workbook, ["plato"]);
 
   return {
