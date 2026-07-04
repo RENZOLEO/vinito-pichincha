@@ -4,7 +4,7 @@ export type Section = "VINOS" | "TRAGOS" | "PLATOS";
 
 const SECTIONS: { key: Section; label: string; icon: string }[] = [
   { key: "VINOS", label: "Vinos", icon: "🍷" },
-  { key: "TRAGOS", label: "Tragos", icon: "🍸" },
+  { key: "TRAGOS", label: "Bebidas", icon: "🍸" },
   { key: "PLATOS", label: "Menú", icon: "🍽️" },
 ];
 
