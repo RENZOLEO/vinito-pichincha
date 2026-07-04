@@ -159,7 +159,7 @@ export function parseDrinksSheet(sheet: XLSX.WorkSheet): {
 
   const flush = () => {
     if (currentDrink) {
-      if (currentDrink.category === "AUTOR") {
+      if (currentDrink.category === "AUTOR" || currentDrink.category === "SOUR") {
         const desc = currentIngredients.filter(Boolean).join(", ");
         currentDrink.description = desc || null;
       } else {
@@ -321,4 +321,4 @@ export function parseExcel(buffer: ArrayBuffer): {
     rows: wines.rows.map((w) => ({ ...w })),
     errors: wines.errors,
   };
-}
+        }
