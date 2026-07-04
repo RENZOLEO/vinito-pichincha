@@ -272,7 +272,7 @@ export default function ReservasClient() {
                   const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                   const dt = new Date(calYear, calMonth, day)
                   const isPast = dt < minDate
-                  const isTuesday = dt.getDay() === 2 || dt.getDay() === 1
+                  const isTuesday = (dt.getDay() === 2 || dt.getDay() === 1) && dateStr !== '2026-07-20'
                   const isDisabled = isPast || isTuesday
                   const isSelected = dateStr === selectedDate
                   const isToday = dt.toDateString() === new Date().toDateString()
@@ -605,4 +605,4 @@ export default function ReservasClient() {
       </div>
     </>
   )
-}
+      }
