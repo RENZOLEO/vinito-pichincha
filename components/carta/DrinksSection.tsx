@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 type Drink = {
   id: number;
   name: string;
-  category: "VERMUTH" | "CLASICO" | "AUTOR" | "WHISKY" | "CERVEZA" | "SIN_ALCOHOL" | "CAFETERIA";
+  category: "VERMUTH" | "CLASICO" | "AUTOR" | "WHISKY" | "SOUR" | "CERVEZA" | "SIN_ALCOHOL" | "CAFETERIA";
   description: string | null;
   price: number | null;
   imageUrl: string | null;
@@ -16,6 +16,7 @@ const CATEGORIES: { key: Drink["category"]; label: string }[] = [
   { key: "CLASICO", label: "Clásicos" },
   { key: "AUTOR", label: "De autor" },
   { key: "WHISKY", label: "Whisky" },
+  { key: "SOUR", label: "Sours" },
   { key: "CERVEZA", label: "Cervezas" },
   { key: "SIN_ALCOHOL", label: "Sin alcohol" },
   { key: "CAFETERIA", label: "Cafetería" },
