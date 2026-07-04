@@ -88,7 +88,7 @@ export function DrinksSection() {
                     {formatPrice(d.price)}
                   </span>
                 </div>
-                {d.category === "AUTOR" && d.description ? (
+                {(d.category === "AUTOR" || d.category === "SOUR") && d.description ? (
                   <p className="text-xs text-vinito-black/70 mt-1 leading-snug">
                     {d.description}
                   </p>
