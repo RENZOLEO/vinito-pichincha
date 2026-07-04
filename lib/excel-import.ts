@@ -17,7 +17,7 @@ export type ParsedWine = {
 
 export type ParsedDrink = {
   name: string;
-  category: "VERMUTH" | "CLASICO" | "AUTOR" | "WHISKY" | "CERVEZA" | "SIN_ALCOHOL" | "CAFETERIA";
+  category: "VERMUTH" | "CLASICO" | "AUTOR" | "WHISKY" | "SOUR" | "CERVEZA" | "SIN_ALCOHOL" | "CAFETERIA";
   description: string | null;
   price: number | null;
 };
@@ -130,6 +130,8 @@ const DRINK_CATEGORY_MAP: Record<string, ParsedDrink["category"]> = {
   whiskies: "WHISKY",
   whiskey: "WHISKY",
   whiskeys: "WHISKY",
+  sours: "SOUR",
+  sour: "SOUR",
   "sin alcohol": "SIN_ALCOHOL",
   cafeteria: "CAFETERIA",
   cafetería: "CAFETERIA",
