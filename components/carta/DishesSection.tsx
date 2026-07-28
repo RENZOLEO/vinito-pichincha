@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 type Dish = {
   id: number;
   name: string;
-  category: "FRIO" | "CALIENTE" | "POSTRE";
+  category: "FRIO" | "CALIENTE" | "PRINCIPAL" | "POSTRE";
   subSection: string | null;
   description: string | null;
   price: number | null;
@@ -14,6 +14,7 @@ type Dish = {
 const CATEGORIES: { key: Dish["category"]; label: string }[] = [
   { key: "FRIO", label: "Platitos fríos" },
   { key: "CALIENTE", label: "Platitos calientes" },
+  { key: "PRINCIPAL", label: "Platos principales" },
   { key: "POSTRE", label: "Postres" },
 ];
 
@@ -36,6 +37,24 @@ export function DishesSection() {
       });
   }, []);
 
+  // Solo mostramos pestañas de categorías que tengan al menos un plato disponible.
+  // /api/dishes ya filtra available:true, así que alcanza con ver qué categorías
+  // están presentes en los platos recibidos.
+  const availableCategories = useMemo(
+    () => CATEGORIES.filter((c) => dishes.some((d) => d.category === c.key)),
+    [dishes]
+  );
+
+  // Si la categoría activa quedó sin platos (o deshabilitada por completo),
+  // saltamos a la primera pestaña que sí tenga contenido.
+  useEffect(() => {
+    if (loading) return;
+    if (availableCategories.length === 0) return;
+    if (!availableCategories.some((c) => c.key === active)) {
+      setActive(availableCategories[0].key);
+    }
+  }, [loading, availableCategories, active]);
+
   const grouped = useMemo(() => {
     const filtered = dishes.filter((d) => d.category === active);
     const groups = new Map<string, Dish[]>();
@@ -50,7 +69,7 @@ export function DishesSection() {
   return (
     <div>
       <div className="flex gap-1 px-4 py-2 overflow-x-auto scrollbar-hide">
-        {CATEGORIES.map(({ key, label }) => (
+        {availableCategories.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setActive(key)}
