@@ -24,7 +24,7 @@ export type ParsedDrink = {
 
 export type ParsedDish = {
   name: string;
-  category: "FRIO" | "CALIENTE" | "POSTRE";
+  category: "FRIO" | "CALIENTE" | "PRINCIPAL" | "POSTRE";
   subSection: string | null;
   description: string | null;
   price: number | null;
@@ -230,6 +230,7 @@ const DISH_SECTIONS: DishSection[] = [
   { category: "FRIO", nameCol: 0, priceCol: 1, ingredientCol: 2 },
   { category: "CALIENTE", nameCol: 6, priceCol: 7, ingredientCol: 8 },
   { category: "POSTRE", nameCol: 12, priceCol: 13, ingredientCol: 14 },
+  { category: "PRINCIPAL", nameCol: 18, priceCol: 19, ingredientCol: 20 },
 ];
 
 export function parseDishesSheet(sheet: XLSX.WorkSheet): {
