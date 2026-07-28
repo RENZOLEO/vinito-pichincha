@@ -4,7 +4,7 @@ import { requireAuth } from "@/lib/auth";
 
 /**
  * POST /api/admin/dishes
- * Body: { name: string, category: "FRIO" | "CALIENTE" | "POSTRE", subSection?: string | null,
+ * Body: { name: string, category: "FRIO" | "CALIENTE" | "PRINCIPAL" | "POSTRE", subSection?: string | null,
  *          description?: string | null, price?: number | null }
  *
  * Crea un nuevo plato. Disponible para ADMIN1 y ADMIN2.
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as {
     name?: string;
-    category?: "FRIO" | "CALIENTE" | "POSTRE";
+    category?: "FRIO" | "CALIENTE" | "PRINCIPAL" | "POSTRE";
     subSection?: string | null;
     description?: string | null;
     price?: number | null;
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   const { name, category, subSection, description, price } = body;
 
   if (!name) return NextResponse.json({ error: "name required" }, { status: 400 });
-  if (!category || !["FRIO", "CALIENTE", "POSTRE"].includes(category)) {
+  if (!category || !["FRIO", "CALIENTE", "PRINCIPAL", "POSTRE"].includes(category)) {
     return NextResponse.json({ error: "valid category required" }, { status: 400 });
   }
 
