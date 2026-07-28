@@ -6,7 +6,7 @@ import { DishToggle } from "@/components/admin/DishToggle";
 type Dish = {
   id: number;
   name: string;
-  category: "FRIO" | "CALIENTE" | "POSTRE";
+  category: "FRIO" | "CALIENTE" | "PRINCIPAL" | "POSTRE";
   subSection: string | null;
   description: string | null;
   price: number | null;
@@ -19,6 +19,7 @@ type SortDir = "asc" | "desc";
 const CATEGORY_LABELS: Record<Dish["category"], string> = {
   FRIO: "Fríos",
   CALIENTE: "Calientes",
+  PRINCIPAL: "Principales",
   POSTRE: "Postres",
 };
 
