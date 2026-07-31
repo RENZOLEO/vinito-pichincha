@@ -3,6 +3,15 @@ import { prisma } from "@/lib/prisma";
 import type { WinesResponse } from "@/lib/types";
 import { Prisma } from "@prisma/client";
 
+function shuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const category = params.get("category");
@@ -43,6 +52,6 @@ export async function GET(request: NextRequest) {
     prisma.wine.count({ where }),
   ]);
 
-  const response: WinesResponse = { wines, total, page };
+  const response: WinesResponse = { wines: shuffle(wines), total, page };
   return NextResponse.json(response);
 }
