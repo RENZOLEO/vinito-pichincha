@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         source: '/administracion/:path*',
         destination: 'https://vinito-gestion-production.up.railway.app/:path*',
       },
+      {
+        source: '/carta/pichincha',
+        destination: '/carta',
+      },
     ];
   },
 };
