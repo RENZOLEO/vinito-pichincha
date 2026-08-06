@@ -67,6 +67,8 @@ export default function ReservasAdminTable({
   const [loading, setLoading] = useState<number | null>(null)
   const [editingGuests, setEditingGuests] = useState<{ id: number; guests: number } | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
+  const [editingTables, setEditingTables] = useState<{ id: number; tables: number[] } | null>(null)
+  const [tablesError, setTablesError] = useState<string | null>(null)
 
   const [showBlockForm, setShowBlockForm] = useState(false)
   const [blockTime, setBlockTime] = useState<string>('all')
@@ -154,6 +156,40 @@ export default function ReservasAdminTable({
       setEditingGuests(null)
     } else {
       setEditError(data.error ?? 'Error al actualizar')
+    }
+    setLoading(null)
+  }
+
+  const usedTablesExcluding = (excludeId: number) => {
+    const set = new Set<number>()
+    reservations.forEach(r => { if (r.id !== excludeId) (JSON.parse(r.tables) as number[]).forEach(t => set.add(t)) })
+    blocks.forEach(b => (JSON.parse(b.tables) as number[]).forEach(t => set.add(t)))
+    return set
+  }
+
+  const toggleEditTable = (t: number) => {
+    setEditingTables(e => e ? { ...e, tables: e.tables.includes(t) ? e.tables.filter(x => x !== t) : [...e.tables, t] } : e)
+  }
+
+  const saveEditTables = async () => {
+    if (!editingTables) return
+    setLoading(editingTables.id)
+    setTablesError(null)
+    const res = await fetch('/api/admin/reservas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editingTables.id, tables: editingTables.tables }),
+    })
+    const data = await res.json()
+    if (res.ok && data.ok) {
+      setReservations(rs => rs.map(r =>
+        r.id === editingTables.id
+          ? { ...r, tables: data.reservation.tables, floor: data.reservation.floor }
+          : r
+      ))
+      setEditingTables(null)
+    } else {
+      setTablesError(data.error ?? 'Error al reasignar')
     }
     setLoading(null)
   }
@@ -376,11 +412,63 @@ export default function ReservasAdminTable({
                         <div style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
                           <span>{r.guests} persona{r.guests !== 1 ? 's' : ''} · Mesa{tables.length > 1 ? 's' : ''} {tables.join(', ')} · Planta {r.floor}</span>
                           {!r.noShow && !r.completed && (
-                            <button onClick={() => { setEditingGuests({ id: r.id, guests: r.guests }); setEditError(null) }}
-                              style={{ fontSize: 11, border: '1px solid #D8DAC8', borderRadius: 2, padding: '1px 5px', background: 'transparent', color: '#888', cursor: 'pointer' }}>✎</button>
+                            <>
+                              <button onClick={() => { setEditingGuests({ id: r.id, guests: r.guests }); setEditError(null) }}
+                                style={{ fontSize: 11, border: '1px solid #D8DAC8', borderRadius: 2, padding: '1px 5px', background: 'transparent', color: '#888', cursor: 'pointer' }}>✎</button>
+                              <button onClick={() => { setEditingTables({ id: r.id, tables }); setTablesError(null) }}
+                                title="Reasignar mesa"
+                                style={{ fontSize: 11, border: '1px solid #D8DAC8', borderRadius: 2, padding: '1px 5px', background: 'transparent', color: '#888', cursor: 'pointer' }}>⇄</button>
+                            </>
                           )}
                         </div>
                       )}
+
+                      {editingTables?.id === r.id && (() => {
+                        const usedByOthers = usedTablesExcluding(r.id)
+                        const selected = editingTables.tables
+                        const validCombo = TABLE_COMBOS.find(
+                          c => c.tables.length === selected.length && c.tables.every(t => selected.includes(t))
+                        )
+                        const capacityOk = !!validCombo && r.guests >= validCombo.min && r.guests <= validCombo.max
+                        return (
+                          <div style={{ background: '#F7F8F2', border: '1.5px solid #D8DAC8', borderRadius: 4, padding: 10, marginTop: 6 }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#888', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>
+                              Elegí mesa(s) para {r.guests} persona{r.guests !== 1 ? 's' : ''}
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+                              {ALL_TABLES.map(t => {
+                                const isUsedByOther = usedByOthers.has(t)
+                                const isSelected = selected.includes(t)
+                                return (
+                                  <button key={t} disabled={isUsedByOther && !isSelected}
+                                    onClick={() => toggleEditTable(t)}
+                                    style={{
+                                      width: 36, height: 32, fontSize: 11, fontWeight: 700, borderRadius: 3,
+                                      border: `1.5px solid ${isSelected ? RED : isUsedByOther ? '#eee' : '#D8DAC8'}`,
+                                      background: isSelected ? RED : isUsedByOther ? '#f0f0f0' : '#fff',
+                                      color: isSelected ? CREAM : isUsedByOther ? '#ccc' : DARK,
+                                      cursor: isUsedByOther && !isSelected ? 'not-allowed' : 'pointer',
+                                    }}>
+                                    {t >= 100 ? `B${t - 99}` : t}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                            {!capacityOk && selected.length > 0 && (
+                              <div style={{ fontSize: 11, color: RED, marginBottom: 8 }}>Esa combinación no es válida o no soporta {r.guests} personas.</div>
+                            )}
+                            {tablesError && <div style={{ fontSize: 11, color: RED, marginBottom: 8 }}>{tablesError}</div>}
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <button onClick={saveEditTables} disabled={!capacityOk || loading === r.id}
+                                style={{ padding: '5px 12px', fontSize: 10, fontWeight: 700, border: 'none', borderRadius: 3, background: capacityOk ? RED : '#ccc', color: CREAM, cursor: capacityOk ? 'pointer' : 'default', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                                {loading === r.id ? '...' : 'Guardar'}
+                              </button>
+                              <button onClick={() => { setEditingTables(null); setTablesError(null) }}
+                                style={{ padding: '5px 10px', fontSize: 10, border: '1px solid #D8DAC8', borderRadius: 3, background: 'transparent', color: '#888', cursor: 'pointer' }}>Cancelar</button>
+                            </div>
+                          </div>
+                        )
+                      })()}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
                       <span style={badge(r.returning ? '#FAECE7' : '#EAF3DE', r.returning ? '#7A2718' : '#2D6A4F')}>
@@ -564,7 +652,7 @@ export default function ReservasAdminTable({
                       return (
                         <>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-                            {[
+                          {[
                               [feedbacks.length, 'Total', RED],
                               [`★ ${avgRating.toFixed(1)}`, 'Promedio', RED],
                               [fiveStars, '5 estrellas', '#2D6A4F'],
