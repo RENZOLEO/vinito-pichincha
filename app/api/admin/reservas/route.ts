@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { findBestCombo, getUsedTables } from '@/lib/reservas/config'
+import { findBestCombo, getFloorPreference, getUsedTables, TABLE_COMBOS } from '@/lib/reservas/config'
 
 // GET /api/admin/reservas?date=2024-12-20
 export async function GET(req: NextRequest) {
@@ -34,14 +34,14 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { id, completed, feedbackSent, guests, noShow } = body
+  const { id, completed, feedbackSent, guests, noShow, tables } = body
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
   // Edit guest count: reassign tables using global daily capacity
   if (guests !== undefined) {
     const existing = await prisma.reservation.findUnique({
       where: { id },
-      select: { date: true },
+      select: { date: true, customer: { select: { name: true, birthDate: true } } },
     })
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
@@ -62,7 +62,8 @@ export async function PATCH(req: NextRequest) {
     ])
 
     const usedTables = getUsedTables([...otherReservations, ...dayBlocks])
-    const combo = findBestCombo(guests, usedTables)
+    const preferFloor = getFloorPreference(guests, existing.customer.name, existing.customer.birthDate)
+    const combo = findBestCombo(guests, usedTables, { preferFloor })
     if (!combo) {
       return NextResponse.json(
         { error: 'Sin disponibilidad para esa cantidad de comensales' },
@@ -73,6 +74,55 @@ export async function PATCH(req: NextRequest) {
     const updated = await prisma.reservation.update({
       where: { id },
       data: { guests, tables: JSON.stringify(combo.tables), floor: combo.floor },
+    })
+    return NextResponse.json({ ok: true, reservation: updated })
+  }
+
+  // Manual table reassignment from the admin panel: { id, tables: number[] }
+  if (Array.isArray(tables)) {
+    const existing = await prisma.reservation.findUnique({
+      where: { id },
+      select: { date: true, guests: true },
+    })
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    const combo = TABLE_COMBOS.find(
+      (c) => c.tables.length === tables.length && c.tables.every((t) => tables.includes(t)),
+    )
+    if (!combo) {
+      return NextResponse.json({ error: 'Esa combinación de mesas no es válida' }, { status: 400 })
+    }
+    if (existing.guests < combo.min || existing.guests > combo.max) {
+      return NextResponse.json(
+        { error: 'Esas mesas no soportan la cantidad de personas de esta reserva' },
+        { status: 400 },
+      )
+    }
+
+    const dayStart = new Date(existing.date)
+    dayStart.setUTCHours(0, 0, 0, 0)
+    const dayEnd = new Date(existing.date)
+    dayEnd.setUTCHours(23, 59, 59, 999)
+
+    const [otherReservations, dayBlocks] = await Promise.all([
+      prisma.reservation.findMany({
+        where: { date: { gte: dayStart, lte: dayEnd }, NOT: { id } },
+        select: { tables: true },
+      }),
+      prisma.tableBlock.findMany({
+        where: { date: { gte: dayStart, lte: dayEnd } },
+        select: { tables: true },
+      }),
+    ])
+    const usedTables = getUsedTables([...otherReservations, ...dayBlocks])
+    if (tables.some((t: number) => usedTables.includes(t))) {
+      return NextResponse.json({ error: 'Una o más mesas ya están ocupadas ese día' }, { status: 409 })
+    }
+
+    const floor = tables[0] >= 100 ? 'baja' : 'alta'
+    const updated = await prisma.reservation.update({
+      where: { id },
+      data: { tables: JSON.stringify(tables), floor },
     })
     return NextResponse.json({ ok: true, reservation: updated })
   }
