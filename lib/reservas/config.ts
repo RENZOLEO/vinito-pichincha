@@ -28,21 +28,22 @@ export const TOTAL_TABLES = 18
 export const TABLE_COMBOS: { tables: number[]; min: number; max: number }[] = [
   // Columna izquierda planta alta (mesas 1-5, combinables en secuencia)
   { tables: [1], min: 1, max: 2 },
-  { tables: [1, 2], min: 3, max: 4 },
-  { tables: [1, 2, 3], min: 5, max: 6 },
+  { tables: [1, 2], min: 3, max: 5 },
+  { tables: [1, 2, 3], min: 5, max: 7 },
   { tables: [1, 2, 3, 4], min: 7, max: 8 },
   { tables: [1, 2, 3, 4, 5], min: 9, max: 10 },
   // Mesas 6 y 7
   { tables: [6], min: 1, max: 2 },
   { tables: [7], min: 1, max: 2 },
-  { tables: [6, 7], min: 3, max: 4 },
-  // Mesas 8, 9, 10
+  { tables: [6, 7], min: 3, max: 6 },
+  // Mesas 8, 9, 10, 11
   { tables: [8], min: 1, max: 2 },
   { tables: [9], min: 1, max: 2 },
   { tables: [10], min: 1, max: 2 },
   { tables: [8, 9], min: 3, max: 4 },
   { tables: [9, 10], min: 3, max: 4 },
   { tables: [8, 9, 10], min: 5, max: 6 },
+  { tables: [9, 10, 11], min: 5, max: 6 },
   // Mesas 11 y 12
   { tables: [11], min: 1, max: 2 },
   { tables: [12], min: 1, max: 2 },
@@ -50,7 +51,7 @@ export const TABLE_COMBOS: { tables: number[]; min: number; max: number }[] = [
   // Mesas 14 y 15
   { tables: [14], min: 1, max: 2 },
   { tables: [15], min: 1, max: 2 },
-  { tables: [14, 15], min: 3, max: 4 },
+  { tables: [14, 15], min: 3, max: 5 },
   // Planta baja
   { tables: [100], min: 4, max: 4 },
   { tables: [101], min: 4, max: 4 },
