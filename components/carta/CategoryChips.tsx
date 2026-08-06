@@ -12,12 +12,17 @@ const CATEGORIES = [
 type Props = {
   active: string;
   onChange: (category: string) => void;
+  availableCategories?: Set<string>;
 };
 
-export function CategoryChips({ active, onChange }: Props) {
+export function CategoryChips({ active, onChange, availableCategories }: Props) {
+  const visible = availableCategories
+    ? CATEGORIES.filter((c) => c.key === "TODOS" || availableCategories.has(c.key))
+    : CATEGORIES;
+
   return (
     <div className="flex gap-1 px-4 pb-2 overflow-x-auto scrollbar-hide">
-      {CATEGORIES.map(({ key, label }) => (
+      {visible.map(({ key, label }) => (
         <button
           key={key}
           onClick={() => onChange(key)}
