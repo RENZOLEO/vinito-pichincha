@@ -449,7 +449,7 @@ export default function ReservasAdminTable({
                                       color: isSelected ? CREAM : isUsedByOther ? '#ccc' : DARK,
                                       cursor: isUsedByOther && !isSelected ? 'not-allowed' : 'pointer',
                                     }}>
-                                    {t >= 100 ? `B${t - 99}` : t}
+                                    {t}
                                   </button>
                                 )
                               })}
@@ -534,7 +534,7 @@ export default function ReservasAdminTable({
                     {ALL_TABLES.map(t => (
                       <button key={t} onClick={() => toggleBlockTable(t)}
                         style={{ width: 36, height: 32, fontSize: 11, fontWeight: 700, borderRadius: 3, border: `1.5px solid ${blockTables.includes(t) ? RED : '#D8DAC8'}`, background: blockTables.includes(t) ? RED : '#fff', color: blockTables.includes(t) ? CREAM : DARK, cursor: 'pointer' }}>
-                        {t >= 100 ? `B${t - 99}` : t}
+                        {t}
                       </button>
                     ))}
                   </div>
@@ -553,7 +553,7 @@ export default function ReservasAdminTable({
                     <div key={b.id} style={{ ...card, display: 'grid', gridTemplateColumns: '70px 1fr auto', alignItems: 'center', gap: 10, borderLeft: `3px solid ${RED}` }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: RED, textTransform: 'uppercase' }}>{b.time ?? 'Todo el día'}</div>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700 }}>Mesa{bTables.length > 1 ? 's' : ''} {bTables.map(t => t >= 100 ? `B${t - 99}` : t).join(', ')}</div>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>Mesa{bTables.length > 1 ? 's' : ''} {bTables.join(', ')}</div>
                         {b.reason && <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{b.reason}</div>}
                       </div>
                       <button onClick={() => removeBlock(b.id)} disabled={loading === b.id}
