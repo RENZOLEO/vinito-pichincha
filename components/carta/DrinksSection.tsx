@@ -46,10 +46,28 @@ export function DrinksSection() {
     [drinks, active]
   );
 
+  // Solo mostramos pestañas de categorías que tengan al menos un trago disponible.
+  // /api/drinks ya filtra available:true, así que alcanza con ver qué categorías
+  // están presentes en los tragos recibidos.
+  const availableCategories = useMemo(
+    () => CATEGORIES.filter((c) => drinks.some((d) => d.category === c.key)),
+    [drinks]
+  );
+
+  // Si la categoría activa quedó sin tragos (o deshabilitada por completo),
+  // saltamos a la primera pestaña que sí tenga contenido.
+  useEffect(() => {
+    if (loading) return;
+    if (availableCategories.length === 0) return;
+    if (!availableCategories.some((c) => c.key === active)) {
+      setActive(availableCategories[0].key);
+    }
+  }, [loading, availableCategories, active]);
+
   return (
     <div>
       <div className="flex gap-1 px-4 py-2 overflow-x-auto scrollbar-hide">
-        {CATEGORIES.map(({ key, label }) => (
+        {availableCategories.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setActive(key)}
