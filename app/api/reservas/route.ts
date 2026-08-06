@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { findBestCombo, getUsedTables, TIME_SLOTS } from '@/lib/reservas/config'
+import { findBestCombo, getFloorPreference, getUsedTables, TIME_SLOTS } from '@/lib/reservas/config'
 import { sendConfirmationEmail } from '@/lib/email'
 import crypto from 'crypto'
 
@@ -98,7 +98,8 @@ export async function POST(req: NextRequest) {
         ])
 
         const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
-        const combo = findBestCombo(guests, usedTables)
+        const preferFloor = getFloorPreference(guests, nombre, birthDate)
+        const combo = findBestCombo(guests, usedTables, { preferFloor })
 
         if (!combo) return null
 
