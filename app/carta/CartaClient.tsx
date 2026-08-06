@@ -33,6 +33,11 @@ export function CartaClient({ initialWines, initialTotal, zones, varietals, init
   const [modalWine, setModalWine] = useState<WineListItem | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const availableWineCategories = useMemo(
+    () => new Set(zones.map((z) => z.category)),
+    [zones]
+  );
+
   const availableZones = useMemo(
     () =>
       [
@@ -104,7 +109,7 @@ export function CartaClient({ initialWines, initialTotal, zones, varietals, init
       {section === "VINOS" ? (
         <>
           <SearchBar value={search} onChange={handleSearch} />
-          <CategoryChips active={category} onChange={handleCategoryChange} />
+          <CategoryChips active={category} onChange={handleCategoryChange} availableCategories={availableWineCategories} />
           <FilterBar
             category={category}
             availableZones={availableZones}
