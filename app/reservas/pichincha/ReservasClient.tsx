@@ -337,7 +337,7 @@ export default function ReservasClient() {
                       }}>
                       📋 Anotarme en lista de espera
                     </button>
-                    <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer"
+                    <a href="https://vinitorosario.com/reservas/wheelwright" target="_blank" rel="noopener noreferrer"
                       style={{ ...btnOutline, color: BLUE, borderColor: '#D8DAC8' }}>
                       🔗 Reservar en Vinito Wheelwright
                     </a>
