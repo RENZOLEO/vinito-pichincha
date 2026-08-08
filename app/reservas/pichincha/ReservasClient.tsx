@@ -590,7 +590,7 @@ export default function ReservasClient() {
                 También podés intentar reservar en Vinito Wheelwright:<br />
                 <a href="https://vinitorosario.com/reservas/wheelwright" target="_blank" rel="noopener noreferrer"
                   style={{ color: RED, textDecoration: 'none', fontWeight: 700 }}>
-                  vinitocopascafe.meitre.com →
+                  Reservar en Wheelwright →
                 </a>
               </div>
 
