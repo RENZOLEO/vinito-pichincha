@@ -588,7 +588,7 @@ export default function ReservasClient() {
 
               <div style={{ background: '#EEF3F7', color: BLUE, borderRadius: 8, padding: '12px 16px', maxWidth: 360, margin: '0 auto 20px', fontSize: 13, fontWeight: 600, textAlign: 'left', lineHeight: 1.6 }}>
                 También podés intentar reservar en Vinito Wheelwright:<br />
-                <a href="https://vinitocopascafe.meitre.com/" target="_blank" rel="noopener noreferrer"
+                <a href="https://vinitorosario.com/reservas/wheelwright" target="_blank" rel="noopener noreferrer"
                   style={{ color: RED, textDecoration: 'none', fontWeight: 700 }}>
                   vinitocopascafe.meitre.com →
                 </a>
