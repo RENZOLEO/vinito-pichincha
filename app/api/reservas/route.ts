@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { findBestCombo, getFloorPreference, getUsedTables, TIME_SLOTS } from '@/lib/reservas/config'
 import { sendConfirmationEmail } from '@/lib/email'
 import crypto from 'crypto'
-
+ 
 const slotLocks = new Map<string, Promise<void>>()
-
+ 
 async function withSlotLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
   while (slotLocks.has(key)) {
     await slotLocks.get(key)
@@ -20,19 +20,19 @@ async function withSlotLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
     slotLocks.delete(key)
   }
 }
-
+ 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const dateStr = searchParams.get('date')
   const guests = parseInt(searchParams.get('guests') || '2')
-
+ 
   if (!dateStr) {
     return NextResponse.json({ error: 'date required' }, { status: 400 })
   }
-
+ 
   const dayStart = new Date(dateStr + 'T00:00:00.000Z')
   const dayEnd = new Date(dateStr + 'T23:59:59.999Z')
-
+ 
   const [dayReservations, dayBlocks] = await Promise.all([
     prisma.reservation.findMany({
       where: { date: { gte: dayStart, lte: dayEnd } },
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       select: { time: true, tables: true },
     }),
   ])
-
+ 
   const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
   const timeSlots = dateStr === '2026-07-03' ? [...TIME_SLOTS, '23:00'] : [...TIME_SLOTS]
   const slots = timeSlots.map((time) => {
@@ -55,19 +55,24 @@ export async function GET(req: NextRequest) {
       floor: combo?.floor ?? null,
     }
   })
-
+ 
   return NextResponse.json({ slots })
 }
-
+ 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { date, time, guests, nombre, apellido, telefono, birthDate, email } = body
-
-    if (!date || !time || !guests || !nombre || !apellido || !telefono) {
+ 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+ 
+    if (!date || !time || !guests || !nombre || !apellido || !telefono || !birthDate || !email) {
       return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 })
     }
-
+    if (!emailPattern.test(String(email).trim())) {
+      return NextResponse.json({ error: 'El email ingresado no es válido' }, { status: 400 })
+    }
+ 
     // Verificar si el cliente está en lista negra
     const existingCustomer = await prisma.customer.findUnique({
       where: { phone: telefono },
@@ -79,11 +84,11 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       )
     }
-
+ 
     const reservationDate = new Date(date + 'T00:00:00.000Z')
     const dayStart = new Date(date + 'T00:00:00.000Z')
     const dayEnd = new Date(date + 'T23:59:59.999Z')
-
+ 
     const result = await withSlotLock(date, () =>
       prisma.$transaction(async (tx) => {
         const [dayReservations, dayBlocks] = await Promise.all([
@@ -96,17 +101,17 @@ export async function POST(req: NextRequest) {
             select: { tables: true },
           }),
         ])
-
+ 
         const usedTables = getUsedTables([...dayReservations, ...dayBlocks])
         const preferFloor = getFloorPreference(guests, nombre, birthDate)
         const combo = findBestCombo(guests, usedTables, { preferFloor })
-
+ 
         if (!combo) return null
-
+ 
         const customerName = `${nombre} ${apellido}`
         const existing = await tx.customer.findUnique({ where: { phone: telefono } })
         const isReturning = existing !== null && existing.visits > 0
-
+ 
         const customer = existing
           ? await tx.customer.update({
               where: { phone: telefono },
@@ -128,9 +133,9 @@ export async function POST(req: NextRequest) {
                 lastVisit: reservationDate,
               },
             })
-
+ 
         const cancelToken = crypto.randomUUID()
-
+ 
         const reservation = await tx.reservation.create({
           data: {
             date: reservationDate,
@@ -143,20 +148,20 @@ export async function POST(req: NextRequest) {
             cancelToken,
           },
         })
-
+ 
         return { reservation, combo, customerName, isReturning, cancelToken, customerEmail: customer.email }
       })
     )
-
+ 
     if (!result) {
       return NextResponse.json(
         { error: 'No hay disponibilidad para este horario' },
         { status: 409 },
       )
     }
-
+ 
     const { reservation, combo, customerName, isReturning, cancelToken, customerEmail } = result
-
+ 
     // Send confirmation email if customer provided email
     if (customerEmail) {
       try {
@@ -173,7 +178,7 @@ export async function POST(req: NextRequest) {
         console.error('Email confirmation error:', e)
       }
     }
-
+ 
     return NextResponse.json({
       ok: true,
       reservation: {
