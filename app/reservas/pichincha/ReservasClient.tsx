@@ -52,6 +52,8 @@ export default function ReservasClient() {
 
   const goStep = (n: Step) => { setError(null); setStep(n) }
 
+  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+
   const firstDay = new Date(calYear, calMonth, 1).getDay()
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate()
 
@@ -430,7 +432,7 @@ export default function ReservasClient() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5, gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: 10, fontWeight: 600, color: '#aaa', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    Email <span style={{ color: '#ccc', fontWeight: 400, textTransform: 'none' }}>(opcional — para confirmación)</span>
+                    Email <span style={{ color: '#ccc', fontWeight: 400, textTransform: 'none' }}>(para tu confirmación)</span>
                   </label>
                   <input type="email" style={inputStyle} placeholder="tu@email.com" value={form.email}
                     onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
@@ -451,8 +453,8 @@ export default function ReservasClient() {
               </div>
 
               <button
-                style={{ ...btnPrimary, opacity: (!form.nombre || !form.apellido || !form.telefono || !form.birthDate || loading) ? 0.4 : 1 }}
-                disabled={!form.nombre || !form.apellido || !form.telefono || !form.birthDate || loading}
+                style={{ ...btnPrimary, opacity: (!form.nombre || !form.apellido || !form.telefono || !form.birthDate || !isValidEmail(form.email) || loading) ? 0.4 : 1 }}
+                disabled={!form.nombre || !form.apellido || !form.telefono || !form.birthDate || !isValidEmail(form.email) || loading}
                 onClick={handleConfirm}>
                 {loading ? 'Confirmando...' : 'Confirmar reserva'}
               </button>
