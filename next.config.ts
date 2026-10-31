@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: '/vinosferia/:path*',
+        destination: 'https://vinito-wheelwright-production.up.railway.app/vinosferia/:path*',
+      },
+      {
         source: '/administracion/:path*',
         destination: 'https://vinito-gestion-production.up.railway.app/:path*',
       },
