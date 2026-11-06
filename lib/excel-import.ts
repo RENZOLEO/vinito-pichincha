@@ -52,6 +52,12 @@ function toInt(v: unknown): number | null {
   return Number.isFinite(n) ? Math.round(n) : null;
 }
 
+// Cosecha: solo años razonables; cualquier otra cosa (códigos, fechas, errores de tipeo) queda vacía
+function toVintage(v: unknown): number | null {
+  const n = toInt(v);
+  return n !== null && n >= 1900 && n <= 2100 ? n : null;
+}
+
 function nonEmpty(v: unknown): boolean {
   return v !== undefined && v !== null && String(v).trim() !== "";
 }
@@ -105,7 +111,7 @@ export function parseWinesSheet(sheet: XLSX.WorkSheet): {
       category: catRaw as ParsedWine["category"],
       varietal: k.cepa && nonEmpty(row[k.cepa]) ? String(row[k.cepa]).trim() : null,
       zone: k.region && nonEmpty(row[k.region]) ? String(row[k.region]).trim() : "Sin región",
-      vintage: k.añada ? toInt(row[k.añada]) : null,
+      vintage: k.añada ? toVintage(row[k.añada]) : null,
       price: k.precio ? toInt(row[k.precio]) : null,
       cost: k.costo ? toInt(row[k.costo]) : null,
       fichaUrl: k.ficha && nonEmpty(row[k.ficha]) ? String(row[k.ficha]).trim() : null,
