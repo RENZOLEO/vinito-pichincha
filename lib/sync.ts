@@ -21,6 +21,11 @@ const dishKey = (d: { name: string; category: string }) => `${d.name}|||${d.cate
 export async function syncFromBuffer(buffer: ArrayBuffer, mode: SyncMode = "sync"): Promise<FullSyncResult> {
   const parsed = parseExcelAll(buffer);
 
+  // Limpia valores fuera de rango que SQLite acepta pero Prisma (Int 32 bits) no puede leer
+  await prisma.$executeRawUnsafe(`UPDATE "Wine" SET "vintage" = NULL WHERE "vintage" < 1900 OR "vintage" > 2100`);
+  await prisma.$executeRawUnsafe(`UPDATE "Wine" SET "price" = NULL WHERE "price" > 2147483647 OR "price" < -2147483648`);
+  await prisma.$executeRawUnsafe(`UPDATE "Wine" SET "cost" = NULL WHERE "cost" > 2147483647 OR "cost" < -2147483648`);
+
   if (mode === "replace") {
     await prisma.sale.deleteMany();
     await prisma.drink.deleteMany();
